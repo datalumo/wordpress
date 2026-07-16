@@ -1,0 +1,91 @@
+<?php
+
+namespace Datalumo\Wp\Admin;
+
+use Datalumo\Wp\Api\ApiException;
+use Datalumo\Wp\Api\Client;
+use Datalumo\Wp\Support\Options;
+use Datalumo\Wp\Sync\BulkSync;
+
+class Ajax
+{
+    public const NONCE = 'datalumo_admin';
+
+    public function register(): void
+    {
+        add_action('wp_ajax_datalumo_connect', [$this, 'connect']);
+        add_action('wp_ajax_datalumo_sync_start', [$this, 'syncStart']);
+        add_action('wp_ajax_datalumo_sync_cancel', [$this, 'syncCancel']);
+        add_action('wp_ajax_datalumo_sync_status', [$this, 'syncStatus']);
+    }
+
+    /**
+     * Verify the pasted organisation id + token against /me; on success cache
+     * the organisation and its sources so the pickers render offline.
+     */
+    public function connect(): void
+    {
+        $this->authorise();
+
+        $organisationId = sanitize_text_field((string) ($_POST['organisation_id'] ?? ''));
+        $token = sanitize_text_field((string) ($_POST['token'] ?? ''));
+
+        if ($organisationId === '' || $token === '') {
+            wp_send_json_error(['message' => __('Both the organisation ID and an API token are required.', 'datalumo')]);
+        }
+
+        try {
+            $me = (new Client())->me($organisationId, $token);
+        } catch (ApiException $e) {
+            wp_send_json_error(['message' => $e->getMessage()]);
+        }
+
+        Options::merge([
+            'api_token' => $token,
+            'organisation' => $me['organisation'] ?? ['id' => $organisationId],
+            'sources' => $me['sources'] ?? [],
+        ]);
+
+        wp_send_json_success([
+            'organisation' => $me['organisation'] ?? null,
+            'sources' => $me['sources'] ?? [],
+        ]);
+    }
+
+    public function syncStart(): void
+    {
+        $this->authorise();
+
+        wp_send_json_success((new BulkSync())->start($this->syncId()));
+    }
+
+    public function syncCancel(): void
+    {
+        $this->authorise();
+
+        (new BulkSync())->cancel($this->syncId());
+
+        wp_send_json_success();
+    }
+
+    public function syncStatus(): void
+    {
+        $this->authorise();
+
+        wp_send_json_success((new BulkSync())->status($this->syncId()));
+    }
+
+    private function syncId(): string
+    {
+        return sanitize_text_field((string) ($_POST['sync_id'] ?? ''));
+    }
+
+    private function authorise(): void
+    {
+        check_ajax_referer(self::NONCE);
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Not allowed.', 'datalumo')], 403);
+        }
+    }
+}

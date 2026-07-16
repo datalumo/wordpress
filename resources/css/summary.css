@@ -1,0 +1,28 @@
+.datalumo-summary {
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    background: #fffdf7;
+}
+
+.datalumo-summary-heading {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    margin-bottom: 0.5rem;
+}
+
+.datalumo-summary-body {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+@media (prefers-color-scheme: dark) {
+    .datalumo-summary {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+}

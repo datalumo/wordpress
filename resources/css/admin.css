@@ -1,0 +1,27 @@
+.datalumo-settings .datalumo-checkbox {
+    display: inline-block;
+    margin: 0 1rem 0.25rem 0;
+}
+
+.datalumo-settings .datalumo-sync-row {
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    padding: 0 1rem;
+    margin: 1rem 0;
+    background: #fff;
+}
+
+.datalumo-inline-result {
+    margin-left: 0.75rem;
+    font-style: italic;
+}
+
+.datalumo-inline-result.is-success {
+    color: #007017;
+    font-style: normal;
+}
+
+.datalumo-inline-result.is-error {
+    color: #b32d2e;
+    font-style: normal;
+}
