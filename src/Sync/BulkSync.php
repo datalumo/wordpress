@@ -8,9 +8,10 @@ use Datalumo\Wp\Support\Options;
 
 /**
  * Full re-index of a sync config's published posts, batched through Action
- * Scheduler. Batches are staggered so a large site trickles into the API
- * instead of hammering it; a failed batch reschedules itself without
- * advancing the progress counter.
+ * Scheduler. Batches chain: each one schedules the next on completion, so
+ * the run moves as fast as the API allows and can never burst — pacing is
+ * delegated to the API's rate limiter, whose Retry-After is honoured. A
+ * transiently failed batch reschedules itself without advancing.
  */
 class BulkSync
 {
@@ -38,9 +39,6 @@ class BulkSync
             $total += (int) ($counts->publish ?? 0);
         }
 
-        $batchSize = $this->batchSize();
-        $batches = (int) ceil($total / max(1, $batchSize));
-
         $this->writeState($syncId, [
             'total' => $total,
             'processed' => 0,
@@ -48,14 +46,7 @@ class BulkSync
             'finished' => null,
         ]);
 
-        for ($index = 0; $index < $batches; $index++) {
-            as_schedule_single_action(
-                time() + $index * $this->staggerSeconds(),
-                self::BATCH_HOOK,
-                [$syncId, $index * $batchSize],
-                self::GROUP,
-            );
-        }
+        as_enqueue_async_action(self::BATCH_HOOK, [$syncId, 0], self::GROUP);
 
         return $this->status($syncId);
     }
@@ -90,7 +81,10 @@ class BulkSync
         ]);
 
         if ($posts === []) {
-            $this->maybeFinish($syncId);
+            // Ran past the last post — the chain ends here.
+            $state = $this->readState($syncId);
+            $state['finished'] = time();
+            $this->writeState($syncId, $state);
 
             return;
         }
@@ -116,13 +110,16 @@ class BulkSync
             // A full plan stops the whole run — the remaining batches would
             // all hit the same wall. Auth failures likewise never retry.
             if ($e->isQuota()) {
-                $this->cancel($syncId);
-
                 $state = $this->readState($syncId);
                 $state['error'] = $e->getMessage();
+                $state['finished'] = time();
                 $this->writeState($syncId, $state);
             } elseif (! $e->isAuthentication()) {
-                as_schedule_single_action(time() + 5 * MINUTE_IN_SECONDS, self::BATCH_HOOK, [$syncId, $offset], self::GROUP);
+                // Rate limited → resume exactly when the API says; anything
+                // else transient → back off five minutes.
+                $delay = $e->isRateLimited() ? ($e->retryAfter ?? 60) : 5 * MINUTE_IN_SECONDS;
+
+                as_schedule_single_action(time() + $delay, self::BATCH_HOOK, [$syncId, $offset], self::GROUP);
             }
 
             return;
@@ -132,7 +129,9 @@ class BulkSync
         $state['processed'] = min($state['total'] ?? 0, ($state['processed'] ?? 0) + count($posts));
         $this->writeState($syncId, $state);
 
-        $this->maybeFinish($syncId);
+        // Chain the next batch immediately — completion-based scheduling
+        // can't burst, so no artificial stagger is needed.
+        as_enqueue_async_action(self::BATCH_HOOK, [$syncId, $offset + $this->batchSize()], self::GROUP);
     }
 
     public function status(string $syncId): array
@@ -147,17 +146,6 @@ class BulkSync
                 && ($state['finished'] ?? null) === null
                 && $this->hasPendingBatches(),
         ];
-    }
-
-    private function maybeFinish(string $syncId): void
-    {
-        if ($this->hasPendingBatches()) {
-            return;
-        }
-
-        $state = $this->readState($syncId);
-        $state['finished'] = time();
-        $this->writeState($syncId, $state);
     }
 
     private function hasPendingBatches(): bool
@@ -204,10 +192,5 @@ class BulkSync
     {
         // The API caps batch pushes at 50 pages per request.
         return min(50, max(1, (int) apply_filters('datalumo_bulk_sync_batch_size', 50)));
-    }
-
-    private function staggerSeconds(): int
-    {
-        return max(0, (int) apply_filters('datalumo_bulk_sync_stagger_seconds', 10));
     }
 }

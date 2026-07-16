@@ -121,7 +121,9 @@ class Client
                 ? (string) $decoded['message']
                 : sprintf(__('Datalumo request failed (%d).', 'datalumo'), $status);
 
-            throw new ApiException($message, $status);
+            $retryAfter = (int) wp_remote_retrieve_header($response, 'retry-after');
+
+            throw new ApiException($message, $status, $retryAfter > 0 ? $retryAfter : null);
         }
 
         return is_array($decoded) ? $decoded : [];

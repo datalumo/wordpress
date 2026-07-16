@@ -6,9 +6,17 @@ use Exception;
 
 class ApiException extends Exception
 {
-    public function __construct(string $message, public readonly int $status = 0)
-    {
+    public function __construct(
+        string $message,
+        public readonly int $status = 0,
+        public readonly ?int $retryAfter = null,
+    ) {
         parent::__construct($message);
+    }
+
+    public function isRateLimited(): bool
+    {
+        return $this->status === 429;
     }
 
     public function isAuthentication(): bool
