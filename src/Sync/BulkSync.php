@@ -113,7 +113,15 @@ class BulkSync
         } catch (ApiException $e) {
             error_log(sprintf('[Datalumo] bulk batch at %d failed (%d): %s', $offset, $e->status, $e->getMessage()));
 
-            if (! $e->isAuthentication()) {
+            // A full plan stops the whole run — the remaining batches would
+            // all hit the same wall. Auth failures likewise never retry.
+            if ($e->isQuota()) {
+                $this->cancel($syncId);
+
+                $state = $this->readState($syncId);
+                $state['error'] = $e->getMessage();
+                $this->writeState($syncId, $state);
+            } elseif (! $e->isAuthentication()) {
                 as_schedule_single_action(time() + 5 * MINUTE_IN_SECONDS, self::BATCH_HOOK, [$syncId, $offset], self::GROUP);
             }
 
@@ -134,6 +142,7 @@ class BulkSync
         return [
             'total' => (int) ($state['total'] ?? 0),
             'processed' => (int) ($state['processed'] ?? 0),
+            'error' => (string) ($state['error'] ?? ''),
             'running' => ($state['started'] ?? null) !== null
                 && ($state['finished'] ?? null) === null
                 && $this->hasPendingBatches(),

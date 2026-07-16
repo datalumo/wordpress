@@ -132,8 +132,9 @@ class ContentSync
     {
         error_log(sprintf('[Datalumo] %s failed (%d): %s', $hook, $e->status, $e->getMessage()));
 
-        // Auth failures won't heal on retry — surface via the settings page instead.
-        if ($e->isAuthentication() || ! function_exists('as_schedule_single_action')) {
+        // Auth failures and a full plan won't heal on retry — surface via
+        // the settings page / dashboard instead of hammering the API.
+        if ($e->isAuthentication() || $e->isQuota() || ! function_exists('as_schedule_single_action')) {
             return;
         }
 

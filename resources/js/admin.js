@@ -81,6 +81,13 @@
 
             var state = response.data;
 
+            if (state.error) {
+                status.textContent = state.error;
+                status.classList.add('is-error');
+
+                return;
+            }
+
             if (state.running) {
                 status.textContent = sprintf(config.i18n.syncProgress, state.processed, state.total);
                 pollTimers[syncId] = setTimeout(function () { pollStatus(syncId); }, 3000);
