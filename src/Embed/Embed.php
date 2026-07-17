@@ -50,7 +50,9 @@ class Embed
         wp_add_inline_script(self::SCRIPT_HANDLE, sprintf(
             'Datalumo.chat(%s, %s).mount();',
             wp_json_encode($widgetKey),
-            wp_json_encode((object) $this->overrides()),
+            // The site-wide mount is always the floating bubble, whatever
+            // variant the widget's dashboard settings default to.
+            wp_json_encode(['variant' => 'bubble'] + $this->overrides()),
         ));
     }
 
