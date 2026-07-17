@@ -16,13 +16,43 @@
 }
 
 .datalumo-summary-body {
-    white-space: pre-wrap;
     line-height: 1.6;
+}
+
+.datalumo-summary-body p {
+    margin: 0 0 0.6em;
+}
+
+.datalumo-summary-body p:last-child {
+    margin-bottom: 0;
+}
+
+.datalumo-summary-body ul,
+.datalumo-summary-body ol {
+    margin: 0.4em 0 0.6em;
+    padding-left: 1.4em;
+}
+
+.datalumo-summary-body a {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.datalumo-summary-body code {
+    font-size: 0.9em;
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
     .datalumo-summary {
         background: rgba(255, 255, 255, 0.04);
         border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .datalumo-summary-body code {
+        background: rgba(255, 255, 255, 0.1);
     }
 }

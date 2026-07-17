@@ -1,7 +1,8 @@
 /**
- * Streams an AI summary of the visitor's search into the results page.
+ * Renders an AI summary of the visitor's search into the results page.
  * Talks to the Datalumo API straight from the browser via the SDK loaded
- * from the app host; if anything fails, the box quietly removes itself.
+ * from the app host; the answer arrives whole and renders as Markdown.
+ * If anything fails, the box quietly removes itself.
  */
 (function () {
     'use strict';
@@ -30,19 +31,17 @@
     }
 
     var body = box.querySelector('.datalumo-summary-body');
-    var text = '';
 
     window.Datalumo.headless(config.widgetKey)
-        .summarize(config.query, {
-            onToken: function (token) {
-                text += token;
-                body.textContent = text;
-            },
-        })
+        .summarize(config.query)
         .then(function (result) {
             if (! result.summarized || result.text === '') {
                 box.remove();
+
+                return;
             }
+
+            body.innerHTML = window.Datalumo.markdown(result.text);
         })
         .catch(function () {
             box.remove();
