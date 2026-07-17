@@ -53,7 +53,8 @@ class Summary
             'selector' => (string) Options::get('enhanced.summary_selector', ''),
             'position' => Options::get('enhanced.summary_position') === 'append' ? 'append' : 'prepend',
             'i18n' => [
-                'heading' => __('Quick answer', 'datalumo'),
+                'heading' => __('AI Summary', 'datalumo'),
+                'show_more' => __('Show more', 'datalumo'),
                 'generating' => __('Summarising the best results…', 'datalumo'),
             ],
         ]);

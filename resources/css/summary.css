@@ -16,7 +16,37 @@
 }
 
 .datalumo-summary-body {
+    position: relative;
     line-height: 1.6;
+    max-height: 8.5rem;
+    overflow: hidden;
+}
+
+.datalumo-summary--expanded .datalumo-summary-body {
+    max-height: none;
+}
+
+/* Fade the clipped edge while collapsed and overflowing */
+.datalumo-summary--overflowing:not(.datalumo-summary--expanded) .datalumo-summary-body::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2.5rem;
+    background: linear-gradient(transparent, #fffdf7);
+    pointer-events: none;
+}
+
+.datalumo-summary-more {
+    margin-top: 0.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 .datalumo-summary-body p {
@@ -50,6 +80,10 @@
     .datalumo-summary {
         background: rgba(255, 255, 255, 0.04);
         border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .datalumo-summary--overflowing:not(.datalumo-summary--expanded) .datalumo-summary-body::after {
+        background: linear-gradient(transparent, #1c1c1c);
     }
 
     .datalumo-summary-body code {

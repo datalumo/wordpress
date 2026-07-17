@@ -42,6 +42,23 @@
             }
 
             body.innerHTML = window.Datalumo.markdown(result.text);
+
+            // Collapsed by default; a Show-more appears only when the
+            // summary actually overflows the fixed height.
+            if (body.scrollHeight > body.clientHeight + 4) {
+                box.classList.add('datalumo-summary--overflowing');
+
+                var more = document.createElement('button');
+                more.type = 'button';
+                more.className = 'datalumo-summary-more';
+                more.textContent = config.i18n.show_more;
+                more.addEventListener('click', function () {
+                    box.classList.add('datalumo-summary--expanded');
+                    more.remove();
+                });
+
+                box.appendChild(more);
+            }
         })
         .catch(function () {
             box.remove();
