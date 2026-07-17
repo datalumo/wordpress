@@ -22,7 +22,9 @@
     var box = document.createElement('div');
     box.className = 'datalumo-summary';
     box.innerHTML = '<div class="datalumo-summary-heading">' + escapeHtml(config.i18n.heading) + '</div>'
-        + '<div class="datalumo-summary-body" aria-live="polite">' + escapeHtml(config.i18n.generating) + '</div>';
+        + '<div class="datalumo-summary-body" aria-live="polite" aria-label="' + escapeHtml(config.i18n.generating) + '">'
+        + '<div class="datalumo-skeleton"><span></span><span></span><span class="datalumo-skeleton-short"></span></div>'
+        + '</div>';
 
     if (config.position === 'append') {
         container.appendChild(box);
