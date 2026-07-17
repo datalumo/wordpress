@@ -83,10 +83,15 @@ class Interceptor
             return [];
         }
 
+        // A scoped search (?post_type=product) must scope the pool too —
+        // otherwise off-type hits inflate found_posts on a page whose
+        // template will never render them.
+        $postType = $query->get('post_type');
+
         $args = [
             'post__in' => $ids,
             'orderby' => 'post__in',
-            'post_type' => 'any',
+            'post_type' => $postType ?: 'any',
             'post_status' => 'publish',
             'posts_per_page' => count($ids),
             'ignore_sticky_posts' => true,
