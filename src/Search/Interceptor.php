@@ -23,9 +23,26 @@ class Interceptor
      */
     private const MAX_RESULTS = 50;
 
+    /**
+     * What this request's interception produced, for click attribution:
+     * the search session id and each pooled permalink's displayed rank.
+     * Null when no search was intercepted on this request.
+     *
+     * @var array{session_id: ?string, ranks: array<string, int>}|null
+     */
+    private static ?array $lastSearch = null;
+
     public function register(): void
     {
         add_filter('posts_pre_query', [$this, 'intercept'], 10, 2);
+    }
+
+    /**
+     * @return array{session_id: ?string, ranks: array<string, int>}|null
+     */
+    public static function lastSearch(): ?array
+    {
+        return self::$lastSearch;
     }
 
     /**
@@ -58,6 +75,17 @@ class Interceptor
 
         $pool = $this->resolvePool($ids, $query);
         $pool = $this->reorder($pool, $query);
+
+        $ranks = [];
+
+        foreach ($pool as $index => $post) {
+            $ranks[get_permalink($post)] = $index + 1;
+        }
+
+        self::$lastSearch = [
+            'session_id' => isset($response['session_id']) ? (string) $response['session_id'] : null,
+            'ranks' => $ranks,
+        ];
 
         $perPage = (int) $query->get('posts_per_page') ?: (int) get_option('posts_per_page', 10);
         $page = max(1, (int) $query->get('paged'));

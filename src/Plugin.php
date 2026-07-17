@@ -5,6 +5,7 @@ namespace Datalumo\Wp;
 use Datalumo\Wp\Admin\Ajax;
 use Datalumo\Wp\Admin\SettingsPage;
 use Datalumo\Wp\Embed\Embed;
+use Datalumo\Wp\Search\ClickTracking;
 use Datalumo\Wp\Search\Interceptor;
 use Datalumo\Wp\Search\Summary;
 use Datalumo\Wp\Sync\BulkSync;
@@ -47,6 +48,7 @@ class Plugin
         (new BulkSync())->register();
         (new Interceptor())->register();
         (new Summary())->register();
+        (new ClickTracking())->register();
         (new Embed())->register();
 
         add_action('admin_notices', [$this, 'configurationNotice']);
