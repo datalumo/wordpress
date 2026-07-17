@@ -37,6 +37,15 @@ class Summary
             return;
         }
 
+        // An empty result set gets no summary at all: the main query has
+        // already run by enqueue time, so a search that found nothing skips
+        // the assets instead of flashing a skeleton that removes itself.
+        global $wp_query;
+
+        if ((int) ($wp_query->found_posts ?? 0) === 0) {
+            return;
+        }
+
         wp_enqueue_script(Embed::SCRIPT_HANDLE);
 
         wp_enqueue_style(
