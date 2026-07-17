@@ -42,7 +42,7 @@
         var rank = rankFor(link.href);
 
         if (rank !== null) {
-            client.trackEvent('click', { url: link.href, rank: rank, source: 'results' });
+            client.trackEvent('click', { url: link.href, rank: rank, source: 'result' });
         }
     }, true);
 

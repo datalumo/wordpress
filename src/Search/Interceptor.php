@@ -76,10 +76,12 @@ class Interceptor
         $pool = $this->resolvePool($ids, $query);
         $pool = $this->reorder($pool, $query);
 
+        // Zero-based, matching the widget SDK's wire convention — the
+        // dashboard renders ranks as #rank+1.
         $ranks = [];
 
         foreach ($pool as $index => $post) {
-            $ranks[get_permalink($post)] = $index + 1;
+            $ranks[get_permalink($post)] = $index;
         }
 
         self::$lastSearch = [
