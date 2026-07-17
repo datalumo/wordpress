@@ -7,11 +7,8 @@
 (function () {
     'use strict';
 
-    var SPARKLE_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">'
-        + '<defs><linearGradient id="datalumo-sparkle" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">'
-        + '<stop offset="0" stop-color="#4285f4"/><stop offset="0.5" stop-color="#a855f7"/><stop offset="1" stop-color="#ec4899"/>'
-        + '</linearGradient></defs>'
-        + '<path fill="url(#datalumo-sparkle)" d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>';
+    var SPARKLE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">'
+        + '<path fill="currentColor" d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>';
 
     var CHEVRON_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
         + '<path d="m6 9 6 6 6-6"/></svg>';
