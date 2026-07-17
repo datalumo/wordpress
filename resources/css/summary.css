@@ -1,18 +1,27 @@
+/*
+ * Theme-agnostic on purpose: every tint derives from the theme's own text
+ * colour (color-mix on currentColor), so the box sits naturally on light
+ * and dark themes alike — the visitor's OS scheme is irrelevant here.
+ */
 .datalumo-summary {
     margin: 0 0 1.5rem;
-    padding: 1rem 1.25rem;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
-    background: #fffdf7;
+    padding: 1rem 1.25rem 0.85rem;
+    border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+    border-radius: 16px;
+    background: color-mix(in srgb, currentColor 3%, transparent);
 }
 
 .datalumo-summary-heading {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.6;
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.65rem;
+}
+
+.datalumo-summary-heading svg {
+    flex: none;
 }
 
 .datalumo-summary-body {
@@ -26,53 +35,95 @@
     max-height: none;
 }
 
-/* Fade the clipped edge while collapsed and overflowing */
-.datalumo-summary--overflowing:not(.datalumo-summary--expanded) .datalumo-summary-body::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 2.5rem;
-    background: linear-gradient(transparent, #fffdf7);
-    pointer-events: none;
+/* Fade the clipped edge while collapsed — a mask fades the content itself,
+   so it works over any background colour */
+.datalumo-summary--overflowing:not(.datalumo-summary--expanded) .datalumo-summary-body {
+    -webkit-mask-image: linear-gradient(#000 calc(100% - 2.5rem), transparent);
+    mask-image: linear-gradient(#000 calc(100% - 2.5rem), transparent);
 }
 
-/* Loading shimmer — the box looks like itself from the first paint */
+/* The finished answer eases in rather than popping over the skeleton */
+.datalumo-summary-answer {
+    animation: datalumo-appear 0.45s ease-out;
+}
+
+@keyframes datalumo-appear {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Loading shimmer — tinted sweep so generating reads as activity */
 .datalumo-skeleton {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    padding: 0.2rem 0;
+    gap: 0.6rem;
+    padding: 0.25rem 0 0.4rem;
 }
 
 .datalumo-skeleton span {
     display: block;
-    height: 0.7rem;
-    border-radius: 4px;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.05) 25%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.05) 75%);
-    background-size: 200% 100%;
-    animation: datalumo-shimmer 1.4s ease-in-out infinite;
+    height: 0.85rem;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        rgba(66, 133, 244, 0.2) 0%,
+        rgba(168, 85, 247, 0.26) 30%,
+        rgba(236, 72, 153, 0.2) 55%,
+        rgba(66, 133, 244, 0.2) 80%
+    );
+    background-size: 300% 100%;
+    animation: datalumo-shimmer 1.6s ease-in-out infinite;
+}
+
+.datalumo-skeleton span:nth-child(2) {
+    width: 92%;
+    animation-delay: 0.12s;
 }
 
 .datalumo-skeleton .datalumo-skeleton-short {
-    width: 55%;
+    width: 58%;
+    animation-delay: 0.24s;
 }
 
 @keyframes datalumo-shimmer {
-    from { background-position: 200% 0; }
+    from { background-position: 100% 0; }
     to { background-position: -200% 0; }
 }
 
 .datalumo-summary-more {
-    margin-top: 0.5rem;
-    padding: 0;
-    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 0.65rem auto 0;
+    padding: 0.35rem 1.1rem;
+    border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+    border-radius: 999px;
     background: none;
     cursor: pointer;
     font: inherit;
     font-size: 0.85rem;
     font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    color: inherit;
+}
+
+.datalumo-summary-more:hover {
+    background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.datalumo-summary-more svg {
+    flex: none;
+    transition: transform 0.2s ease;
+}
+
+.datalumo-summary--expanded .datalumo-summary-more svg {
+    transform: rotate(180deg);
 }
 
 .datalumo-summary-body p {
@@ -99,25 +150,5 @@
     font-size: 0.9em;
     padding: 0.1em 0.3em;
     border-radius: 4px;
-    background: rgba(0, 0, 0, 0.06);
-}
-
-@media (prefers-color-scheme: dark) {
-    .datalumo-summary {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.12);
-    }
-
-    .datalumo-summary--overflowing:not(.datalumo-summary--expanded) .datalumo-summary-body::after {
-        background: linear-gradient(transparent, #1c1c1c);
-    }
-
-    .datalumo-skeleton span {
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.07) 25%, rgba(255, 255, 255, 0.14) 50%, rgba(255, 255, 255, 0.07) 75%);
-        background-size: 200% 100%;
-    }
-
-    .datalumo-summary-body code {
-        background: rgba(255, 255, 255, 0.1);
-    }
+    background: color-mix(in srgb, currentColor 8%, transparent);
 }

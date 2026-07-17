@@ -72,6 +72,7 @@ class Summary
             'i18n' => [
                 'heading' => __('AI Summary', 'datalumo'),
                 'show_more' => __('Show more', 'datalumo'),
+                'show_less' => __('Show less', 'datalumo'),
                 'generating' => __('Summarising the best results…', 'datalumo'),
             ],
         ]);
