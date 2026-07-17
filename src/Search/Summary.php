@@ -57,6 +57,7 @@ class Summary
         wp_localize_script('datalumo-summary', 'datalumoSummary', [
             'widgetKey' => $widgetKey,
             'query' => $query,
+            'filters' => $this->activeFilters(),
             'selector' => (string) Options::get('enhanced.summary_selector', ''),
             'position' => Options::get('enhanced.summary_position') === 'append' ? 'append' : 'prepend',
             'i18n' => [
@@ -65,6 +66,31 @@ class Summary
                 'generating' => __('Summarising the best results…', 'datalumo'),
             ],
         ]);
+    }
+
+    /**
+     * Filters the visitor applied to the search, so the summary covers the
+     * same slice of content as the result list. Currently the post_type of
+     * a scoped search (e.g. ?post_type=product); themes can extend via the
+     * datalumo_summary_filters filter.
+     *
+     * @return array<string, string>
+     */
+    private function activeFilters(): array
+    {
+        $filters = [];
+
+        $postType = get_query_var('post_type');
+
+        if (is_array($postType)) {
+            $postType = count($postType) === 1 ? reset($postType) : '';
+        }
+
+        if (is_string($postType) && $postType !== '' && $postType !== 'any') {
+            $filters['post_type'] = $postType;
+        }
+
+        return (array) apply_filters('datalumo_summary_filters', $filters);
     }
 
     /**

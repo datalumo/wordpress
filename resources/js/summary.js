@@ -35,7 +35,7 @@
     var body = box.querySelector('.datalumo-summary-body');
 
     window.Datalumo.headless(config.widgetKey)
-        .summarize(config.query)
+        .summarize(config.query, { filters: config.filters || {} })
         .then(function (result) {
             if (! result.summarized || result.text === '') {
                 box.remove();
