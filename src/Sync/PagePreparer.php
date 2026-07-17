@@ -15,6 +15,11 @@ class PagePreparer
      */
     public function prepare(WP_Post $post, array $metaMappings = []): ?array
     {
+        // Integrations can veto indexing (e.g. products hidden from search).
+        if (! apply_filters('datalumo_is_indexable', true, $post)) {
+            return null;
+        }
+
         $content = $this->cleanContent($post);
 
         if ($content === '') {

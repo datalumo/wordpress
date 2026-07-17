@@ -31,6 +31,11 @@ class Plugin
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('datalumo', false, dirname(plugin_basename(DATALUMO_FILE)) . '/languages');
+
+            // Deferred — WooCommerce may load after us.
+            if (Integration\WooCommerce::isActive()) {
+                (new Integration\WooCommerce())->register();
+            }
         });
 
         if (is_admin()) {

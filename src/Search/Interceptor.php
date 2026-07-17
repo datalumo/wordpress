@@ -8,9 +8,11 @@ use Datalumo\Wp\Support\Options;
 use WP_Query;
 
 /**
- * Replaces WordPress native search with Datalumo search. Hits come back with
- * the WP post id as external_id, so results rehydrate into real WP_Post
- * objects and the theme renders them exactly as before — just better ranked.
+ * Replaces WordPress native search with Datalumo search. Hits come back
+ * with the WP post id as external_id and rehydrate into a pool of real
+ * WP_Post objects — with the query's own meta/tax constraints enforced
+ * WP-side, integration hooks applied (WooCommerce hidden products, price
+ * filter), and the requested orderby honoured — before local pagination.
  * Any API problem falls back to native search; visitors never see an error.
  */
 class Interceptor
@@ -35,11 +37,9 @@ class Interceptor
             return $posts;
         }
 
-        $widgetKey = (string) Options::get('enhanced.widget_key');
-
         try {
             $response = (new Client())->search(
-                $widgetKey,
+                (string) Options::get('enhanced.widget_key'),
                 (string) $query->get('s'),
                 min(self::MAX_RESULTS, (int) apply_filters('datalumo_search_max_results', self::MAX_RESULTS)),
             );
@@ -49,37 +49,107 @@ class Interceptor
             return null;
         }
 
-        $externalIds = array_values(array_filter(array_map(
+        $ids = array_values(array_filter(array_map(
             fn ($hit) => isset($hit['external_id']) && ctype_digit((string) $hit['external_id'])
                 ? (int) $hit['external_id']
                 : null,
             $response['data'] ?? [],
         )));
 
-        if ($externalIds === []) {
-            $query->found_posts = 0;
-            $query->max_num_pages = 0;
-
-            return [];
-        }
+        $pool = $this->resolvePool($ids, $query);
+        $pool = $this->reorder($pool, $query);
 
         $perPage = (int) $query->get('posts_per_page') ?: (int) get_option('posts_per_page', 10);
         $page = max(1, (int) $query->get('paged'));
-        $pageIds = array_slice($externalIds, ($page - 1) * $perPage, $perPage);
 
-        $found = get_posts([
+        $query->found_posts = count($pool);
+        $query->max_num_pages = (int) ceil(count($pool) / max(1, $perPage));
+
+        return array_slice($pool, ($page - 1) * $perPage, $perPage);
+    }
+
+    /**
+     * Resolve hit ids to published posts, in ranked order, with the query's
+     * own meta/tax constraints enforced WP-side — Datalumo ranks, WordPress
+     * filters. Integrations adjust the args via datalumo_resolve_args
+     * (WooCommerce: hidden products, the price-filter widget).
+     *
+     * @param  array<int, int>  $ids
+     * @return array<int, \WP_Post>
+     */
+    private function resolvePool(array $ids, WP_Query $query): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $args = [
+            'post__in' => $ids,
+            'orderby' => 'post__in',
             'post_type' => 'any',
             'post_status' => 'publish',
-            'post__in' => $pageIds ?: [0],
-            'orderby' => 'post__in',
-            'numberposts' => -1,
-            'suppress_filters' => false,
+            'posts_per_page' => count($ids),
+            'ignore_sticky_posts' => true,
+            'suppress_filters' => true,
+        ];
+
+        $metaQuery = $query->get('meta_query');
+
+        if (is_array($metaQuery) && $metaQuery !== []) {
+            $args['meta_query'] = $metaQuery;
+        }
+
+        if (! empty($query->tax_query->queries)) {
+            $args['tax_query'] = $query->tax_query->queries;
+        }
+
+        $args = apply_filters('datalumo_resolve_args', $args, $query);
+
+        return get_posts($args);
+    }
+
+    /**
+     * Honour an explicit orderby (Woo catalog sorts included, via the
+     * datalumo_sort_map filter); relevance keeps Datalumo's ranking.
+     *
+     * @param  array<int, \WP_Post>  $pool
+     * @return array<int, \WP_Post>
+     */
+    private function reorder(array $pool, WP_Query $query): array
+    {
+        $orderby = isset($_GET['orderby']) ? sanitize_key((string) wp_unslash($_GET['orderby'])) : '';
+
+        if ($orderby === '' || $orderby === 'relevance' || $pool === []) {
+            return $pool;
+        }
+
+        $map = apply_filters('datalumo_sort_map', [
+            'date' => ['field' => 'post_date', 'order' => 'desc'],
+            'title' => ['field' => 'post_title', 'order' => 'asc'],
         ]);
 
-        $query->found_posts = count($externalIds);
-        $query->max_num_pages = (int) ceil(count($externalIds) / max(1, $perPage));
+        $spec = $map[$orderby] ?? null;
 
-        return $found;
+        if ($spec === null) {
+            return $pool;
+        }
+
+        usort($pool, function ($a, $b) use ($spec) {
+            if (isset($spec['meta'])) {
+                $va = get_post_meta($a->ID, $spec['meta'], true);
+                $vb = get_post_meta($b->ID, $spec['meta'], true);
+                $cmp = ! empty($spec['numeric'])
+                    ? (float) $va <=> (float) $vb
+                    : strcasecmp((string) $va, (string) $vb);
+            } else {
+                $field = (string) $spec['field'];
+                $cmp = strcasecmp((string) $a->{$field}, (string) $b->{$field});
+            }
+
+            return ($spec['order'] ?? 'asc') === 'desc' ? -$cmp : $cmp;
+        });
+
+        return $pool;
     }
 
     private function shouldIntercept(WP_Query $query): bool
