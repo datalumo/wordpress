@@ -30,6 +30,13 @@ class Summary
             return;
         }
 
+        // A single keyword is navigation, not a question — skip the whole
+        // summary (no assets, no skeleton flash). The server enforces its
+        // own gate; this just avoids mounting a box that would never fill.
+        if (! $this->worthSummarising($query)) {
+            return;
+        }
+
         wp_enqueue_script(Embed::SCRIPT_HANDLE);
 
         wp_enqueue_style(
@@ -58,5 +65,20 @@ class Summary
                 'generating' => __('Summarising the best results…', 'datalumo'),
             ],
         ]);
+    }
+
+    /**
+     * Mirrors the search widget's client gate: at least three words, a
+     * trailing question mark, or enough length for space-less scripts.
+     */
+    private function worthSummarising(string $query): bool
+    {
+        if (str_ends_with($query, '?') || str_ends_with($query, '？')) {
+            return true;
+        }
+
+        $words = count(preg_split('/\s+/u', $query, -1, PREG_SPLIT_NO_EMPTY) ?: []);
+
+        return $words >= 3 || mb_strlen($query) >= 12;
     }
 }
