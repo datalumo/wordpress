@@ -76,22 +76,6 @@ class Interceptor
         $pool = $this->resolvePool($ids, $query);
         $pool = $this->reorder($pool, $query);
 
-        // Temporary diagnostic: shows whether interception ran for this search,
-        // how many hits Datalumo returned, and the order the pool ends up in.
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf(
-                '[Datalumo debug] s="%s" post_type=%s datalumo_hits=%d pool=%d top=[%s]',
-                (string) $query->get('s'),
-                var_export($query->get('post_type'), true),
-                count($ids),
-                count($pool),
-                implode(' | ', array_map(
-                    fn ($p) => $p->ID.':'.get_the_title($p),
-                    array_slice($pool, 0, 6),
-                )),
-            ));
-        }
-
         // Zero-based, matching the widget SDK's wire convention — the
         // dashboard renders ranks as #rank+1. Keys are the absolute
         // permalinks themes render; the browser-side matcher normalises
@@ -162,7 +146,17 @@ class Interceptor
 
         $args = apply_filters('datalumo_resolve_args', $args, $query);
 
-        return get_posts($args);
+        $posts = get_posts($args);
+
+        // orderby => post__in isn't reliable here: other plugins (WooCommerce
+        // catalog ordering, etc.) hook pre_get_posts and reset the order, which
+        // suppress_filters doesn't prevent. So enforce Datalumo's ranking in
+        // PHP against the id order we asked for.
+        $rank = array_flip(array_values($ids));
+
+        usort($posts, fn ($a, $b) => ($rank[$a->ID] ?? PHP_INT_MAX) <=> ($rank[$b->ID] ?? PHP_INT_MAX));
+
+        return $posts;
     }
 
     /**
