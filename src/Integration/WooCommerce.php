@@ -5,9 +5,9 @@ namespace Datalumo\Wp\Integration;
 use WP_Query;
 
 /**
- * WooCommerce-specific search behaviour, wired into the interceptor's
- * hooks: catalog sorts, hidden-product exclusion, and the price-filter
- * widget. Registered only when WooCommerce is active.
+ * WooCommerce search behaviour on the interceptor's hooks: catalog sorts,
+ * hidden-product exclusion, and the price-filter widget. Registered only
+ * when WooCommerce is active.
  */
 class WooCommerce
 {
@@ -48,8 +48,7 @@ class WooCommerce
     }
 
     /**
-     * Products marked "hidden from search" in Woo's catalog visibility
-     * must not resurface through Datalumo.
+     * Exclude products marked "hidden from search" in Woo catalog visibility.
      *
      * @param  array<string, mixed>  $args
      * @return array<string, mixed>
@@ -58,6 +57,14 @@ class WooCommerce
     {
         if (! function_exists('wc_get_product_visibility_term_ids')) {
             return $args;
+        }
+
+        // A Woo product search already carries this clause (copied from the
+        // main query), so skip it rather than add a duplicate.
+        foreach ((array) ($args['tax_query'] ?? []) as $clause) {
+            if (($clause['taxonomy'] ?? null) === 'product_visibility') {
+                return $args;
+            }
         }
 
         $excluded = wc_get_product_visibility_term_ids()['exclude-from-search'] ?? 0;
@@ -75,8 +82,8 @@ class WooCommerce
     }
 
     /**
-     * Woo's price-filter widget passes min_price/max_price on the search
-     * URL — honour it against the result pool.
+     * Honour the min_price/max_price the Woo price-filter widget puts on the
+     * search URL against the result pool.
      *
      * @param  array<string, mixed>  $args
      * @return array<string, mixed>
