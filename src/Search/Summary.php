@@ -7,8 +7,8 @@ use Datalumo\Wp\Support\Options;
 
 /**
  * AI summary above native search results. The browser talks to the API
- * directly through the Datalumo JS SDK (streaming), so no server proxy —
- * the site's domain in the widget's website list is the only requirement.
+ * directly through the Datalumo JS SDK, so no server proxy — the site's
+ * domain must be in the widget's website list.
  */
 class Summary
 {
@@ -30,16 +30,14 @@ class Summary
             return;
         }
 
-        // A single keyword is navigation, not a question — skip the whole
-        // summary (no assets, no skeleton flash). The server enforces its
-        // own gate; this just avoids mounting a box that would never fill.
+        // A single keyword is navigation, not a question — skip loading assets
+        // for a box that would never fill. The server enforces its own gate too.
         if (! $this->worthSummarising($query)) {
             return;
         }
 
-        // An empty result set gets no summary at all: the main query has
-        // already run by enqueue time, so a search that found nothing skips
-        // the assets instead of flashing a skeleton that removes itself.
+        // No results, no summary. The main query has already run by enqueue
+        // time, so we can skip the assets rather than flash a skeleton.
         global $wp_query;
 
         if ((int) ($wp_query->found_posts ?? 0) === 0) {
@@ -79,10 +77,9 @@ class Summary
     }
 
     /**
-     * Filters the visitor applied to the search, so the summary covers the
-     * same slice of content as the result list. Currently the post_type of
-     * a scoped search (e.g. ?post_type=product); themes can extend via the
-     * datalumo_summary_filters filter.
+     * Filters the visitor applied, so the summary covers the same slice as the
+     * result list. Currently the post_type of a scoped search; themes extend
+     * via the datalumo_summary_filters filter.
      *
      * @return array<string, string>
      */

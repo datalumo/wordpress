@@ -1,8 +1,7 @@
 /**
- * Renders an AI summary of the visitor's search into the results page.
- * Talks to the Datalumo API straight from the browser via the SDK loaded
- * from the app host; the answer arrives whole and renders as Markdown.
- * If anything fails, the box quietly removes itself.
+ * Renders an AI summary of the visitor's search into the results page. Talks
+ * to the Datalumo API from the browser via the SDK; the answer renders as
+ * Markdown. If anything fails, the box removes itself.
  */
 (function () {
     'use strict';
@@ -53,8 +52,7 @@
             body.innerHTML = '<div class="datalumo-summary-answer">'
                 + window.Datalumo.markdown(result.text) + '</div>';
 
-            // Collapsed by default; the toggle appears only when the
-            // summary actually overflows the fixed height.
+            // Collapsed by default; the toggle appears only on overflow.
             if (body.scrollHeight > body.clientHeight + 4) {
                 box.classList.add('datalumo-summary--overflowing');
                 box.appendChild(buildToggle());

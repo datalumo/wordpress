@@ -20,16 +20,12 @@ class Ajax
     }
 
     /**
-     * Verify the pasted organisation id + token against /me; on success cache
-     * the organisation and its sources so the pickers render offline.
+     * Verify the pasted org id + token against /me; on success cache the
+     * organisation and its sources so the pickers render offline.
      *
-     * The token input is type=password and never re-renders a saved value
-     * (only a "saved" placeholder), so an empty POST token falls back to the
-     * stored one — same as re-testing without re-pasting the secret.
-     *
-     * The base URL is taken from the form field when present so Connect &
-     * test uses the value on screen even if Settings has not been saved yet.
-     * On success it is persisted with the token.
+     * An empty POST token falls back to the stored one — the password field
+     * renders only a "saved" placeholder, never the secret. The base URL comes
+     * from the form field (so an unsaved value works) and is persisted on success.
      */
     public function connect(): void
     {

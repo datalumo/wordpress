@@ -46,8 +46,8 @@ class PagePreparer
 
             $meta[$mapping['name']] = $value;
 
-            // The API indexes page content; mapped fields marked searchable
-            // ride along in the body as labelled lines.
+            // Only page content is indexed, so searchable mapped fields ride
+            // along in the body as labelled lines.
             if (! empty($mapping['searchable'])) {
                 $searchableLines[] = sprintf(
                     '%s: %s',
@@ -74,9 +74,9 @@ class PagePreparer
     }
 
     /**
-     * Rendered post content without theme side effects: shortcodes stripped
-     * (or rendered when the site opts in), blocks rendered, but never the
-     * full the_content filter chain — page builders hook heavy markup there.
+     * Rendered content without theme side effects: shortcodes stripped (or
+     * rendered on opt-in) and blocks rendered, but never the full the_content
+     * filter chain — page builders hook heavy markup there.
      */
     private function cleanContent(WP_Post $post): string
     {

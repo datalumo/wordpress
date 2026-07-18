@@ -8,10 +8,9 @@ use Datalumo\Wp\Support\Options;
 
 /**
  * Full re-index of a sync config's published posts, batched through Action
- * Scheduler. Batches chain: each one schedules the next on completion, so
- * the run moves as fast as the API allows and can never burst — pacing is
- * delegated to the API's rate limiter, whose Retry-After is honoured. A
- * transiently failed batch reschedules itself without advancing.
+ * Scheduler. Each batch schedules the next on completion, so the run can't
+ * burst — pacing is delegated to the API's rate limiter, whose Retry-After
+ * is honoured. A transiently failed batch reschedules itself without advancing.
  */
 class BulkSync
 {
@@ -107,16 +106,15 @@ class BulkSync
         } catch (ApiException $e) {
             error_log(sprintf('[Datalumo] bulk batch at %d failed (%d): %s', $offset, $e->status, $e->getMessage()));
 
-            // A full plan stops the whole run — the remaining batches would
-            // all hit the same wall. Auth failures likewise never retry.
+            // A full plan stops the whole run — remaining batches hit the same
+            // wall. Auth failures likewise never retry.
             if ($e->isQuota()) {
                 $state = $this->readState($syncId);
                 $state['error'] = $e->getMessage();
                 $state['finished'] = time();
                 $this->writeState($syncId, $state);
             } elseif (! $e->isAuthentication()) {
-                // Rate limited → resume exactly when the API says; anything
-                // else transient → back off five minutes.
+                // Rate limited → resume per Retry-After; else back off five minutes.
                 $delay = $e->isRateLimited() ? ($e->retryAfter ?? 60) : 5 * MINUTE_IN_SECONDS;
 
                 as_schedule_single_action(time() + $delay, self::BATCH_HOOK, [$syncId, $offset], self::GROUP);
@@ -130,7 +128,7 @@ class BulkSync
         $this->writeState($syncId, $state);
 
         // Chain the next batch immediately — completion-based scheduling
-        // can't burst, so no artificial stagger is needed.
+        // can't burst, so no stagger needed.
         as_enqueue_async_action(self::BATCH_HOOK, [$syncId, $offset + $this->batchSize()], self::GROUP);
     }
 

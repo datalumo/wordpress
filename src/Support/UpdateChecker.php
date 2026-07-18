@@ -7,9 +7,9 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 /**
  * Pulls updates from the public GitHub repo via Plugin Update Checker.
  *
- * Releases: create a GitHub release (or tag). Prefer attaching a zip asset
- * that includes vendor/ so Composer dependencies ship with the update;
- * without an asset PUC falls back to GitHub's source archive.
+ * To release, create a GitHub release. Prefer attaching a zip asset that
+ * includes vendor/ so Composer deps ship with the update; without one, PUC
+ * falls back to GitHub's source archive.
  */
 class UpdateChecker
 {

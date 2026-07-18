@@ -8,12 +8,10 @@ use Datalumo\Wp\Support\Options;
 use WP_Query;
 
 /**
- * Replaces WordPress native search with Datalumo search. Hits come back
- * with the WP post id as external_id and rehydrate into a pool of real
- * WP_Post objects — with the query's own meta/tax constraints enforced
- * WP-side, integration hooks applied (WooCommerce hidden products, price
- * filter), and the requested orderby honoured — before local pagination.
- * Any API problem falls back to native search; visitors never see an error.
+ * Replaces WordPress native search with Datalumo. Hits carry the WP post id
+ * as external_id and rehydrate into a pool of WP_Post objects — meta/tax
+ * constraints enforced WP-side, integration hooks applied, orderby honoured
+ * — before local pagination. Any API error falls back to native search.
  */
 class Interceptor
 {
@@ -24,9 +22,9 @@ class Interceptor
     private const MAX_RESULTS = 50;
 
     /**
-     * What this request's interception produced, for click attribution:
-     * the search session id and each pooled permalink's displayed rank.
-     * Null when no search was intercepted on this request.
+     * This request's interception, for click attribution: the search session
+     * id and each pooled permalink's displayed rank. Null when nothing was
+     * intercepted.
      *
      * @var array{session_id: ?string, ranks: array<string, int>}|null
      */
@@ -76,10 +74,9 @@ class Interceptor
         $pool = $this->resolvePool($ids, $query);
         $pool = $this->reorder($pool, $query);
 
-        // Zero-based, matching the widget SDK's wire convention — the
-        // dashboard renders ranks as #rank+1. Keys are the absolute
-        // permalinks themes render; the browser-side matcher normalises
-        // trailing slashes / encoding before comparing.
+        // Zero-based to match the widget SDK wire convention (dashboard shows
+        // #rank+1). Keyed by absolute permalink; the browser matcher normalises
+        // slashes/encoding before comparing.
         $ranks = [];
 
         foreach ($pool as $index => $post) {
@@ -105,10 +102,9 @@ class Interceptor
     }
 
     /**
-     * Resolve hit ids to published posts, in ranked order, with the query's
-     * own meta/tax constraints enforced WP-side — Datalumo ranks, WordPress
-     * filters. Integrations adjust the args via datalumo_resolve_args
-     * (WooCommerce: hidden products, the price-filter widget).
+     * Resolve hit ids to published posts in ranked order, with the query's own
+     * meta/tax constraints enforced WP-side. Integrations adjust args via
+     * datalumo_resolve_args (WooCommerce hidden products, price filter).
      *
      * @param  array<int, int>  $ids
      * @return array<int, \WP_Post>
@@ -119,9 +115,8 @@ class Interceptor
             return [];
         }
 
-        // A scoped search (?post_type=product) must scope the pool too —
-        // otherwise off-type hits inflate found_posts on a page whose
-        // template will never render them.
+        // A scoped search (?post_type=product) must scope the pool too, or
+        // off-type hits inflate found_posts for a template that won't render them.
         $postType = $query->get('post_type');
 
         $args = [
@@ -148,10 +143,9 @@ class Interceptor
 
         $posts = get_posts($args);
 
-        // orderby => post__in isn't reliable here: other plugins (WooCommerce
-        // catalog ordering, etc.) hook pre_get_posts and reset the order, which
-        // suppress_filters doesn't prevent. So enforce Datalumo's ranking in
-        // PHP against the id order we asked for.
+        // orderby => post__in isn't reliable: other plugins (Woo catalog
+        // ordering) hook pre_get_posts and reset the order, which
+        // suppress_filters doesn't prevent — so enforce the ranking in PHP.
         $rank = array_flip(array_values($ids));
 
         usort($posts, fn ($a, $b) => ($rank[$a->ID] ?? PHP_INT_MAX) <=> ($rank[$b->ID] ?? PHP_INT_MAX));
@@ -217,8 +211,8 @@ class Interceptor
             return false;
         }
 
-        // Scope guard: when the query targets specific post types, only
-        // intercept if they're all covered by the enhanced-search setting.
+        // Only intercept a type-scoped query if every requested type is
+        // covered by the enhanced-search setting.
         $scope = (array) Options::get('enhanced.post_types', []);
         $requested = array_filter((array) $query->get('post_type'));
 

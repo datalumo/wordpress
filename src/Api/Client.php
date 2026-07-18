@@ -5,22 +5,21 @@ namespace Datalumo\Wp\Api;
 use Datalumo\Wp\Support\Options;
 
 /**
- * Thin wp_remote_* client for the Datalumo API. Two authentication modes:
+ * Thin wp_remote_* client for the Datalumo API. Two auth modes:
  *
- * - Token requests (content sync) send the organisation API token as a
- *   Bearer header against /api/v1/{org}/… push endpoints.
- * - Widget requests (enhanced search) send this site's Origin header, which
- *   authorises the call as long as the site's domain is in the widget's
- *   website list — the same requirement the embedded widgets already have.
+ * - Token requests (content sync): Bearer org API token against the
+ *   /api/v1/{org}/… push endpoints.
+ * - Widget requests (enhanced search): this site's Origin header, authorised
+ *   as long as the site's domain is in the widget's website list.
  */
 class Client
 {
     /**
-     * GET /me — connection test + organisation/source discovery. The API
-     * scopes tokens to an organisation, so both are needed to connect.
+     * GET /me — connection test + organisation/source discovery. Tokens are
+     * org-scoped, so both id and token are needed to connect.
      *
-     * @param string|null $baseUrl Optional base URL override (e.g. from the
-     *                             settings form before it has been saved).
+     * @param string|null $baseUrl Optional override (e.g. from the settings
+     *                             form before it has been saved).
      */
     public function me(string $organisationId, string $token, ?string $baseUrl = null): array
     {

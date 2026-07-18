@@ -7,7 +7,7 @@ use Datalumo\Wp\Support\Options;
 /**
  * Front-end embeds: the floating chat widget, the [datalumo_search] and
  * [datalumo_chat] shortcodes, and signed visitor identity for logged-in
- * users — so their conversations can be continued across visits.
+ * users so conversations continue across visits.
  */
 class Embed
 {
@@ -50,8 +50,8 @@ class Embed
         wp_add_inline_script(self::SCRIPT_HANDLE, sprintf(
             'Datalumo.chat(%s, %s).mount();',
             wp_json_encode($widgetKey),
-            // The site-wide mount is always the floating bubble, whatever
-            // variant the widget's dashboard settings default to.
+            // Site-wide mount is always the floating bubble, whatever the
+            // widget's dashboard default variant is.
             wp_json_encode(['variant' => 'bubble'] + $this->overrides()),
         ));
     }
@@ -98,8 +98,8 @@ class Embed
 
     /**
      * Shared widget overrides: the signed identity of the logged-in visitor,
-     * when identity is configured. The hash is computed server-side with the
-     * widget's signing secret, so it can't be forged in the browser.
+     * when configured. The hash is HMAC'd server-side with the widget's signing
+     * secret, so it can't be forged in the browser.
      *
      * @return array<string, mixed>
      */

@@ -1,12 +1,10 @@
 /**
- * Reports result and summary clicks to Datalumo. One capture-phase
- * listener so the event still fires when the click navigates away; the
- * SDK sends it with keepalive, tied to the search session the server-side
- * interception returned.
+ * Reports result and summary clicks to Datalumo. One capture-phase listener
+ * so the event still fires when the click navigates away; the SDK sends it
+ * with keepalive, tied to the search session the interceptor returned.
  *
- * Result clicks fire when the link matches a ranked hit from that search
- * (the rank map is the source of truth — no container dependency). Summary
- * links always count.
+ * A result click counts when the link matches a ranked hit (the rank map is
+ * the source of truth — no container dependency); summary links always count.
  */
 (function () {
     'use strict';
@@ -65,9 +63,8 @@
     }
 
     /**
-     * Compare permalinks by origin + path, ignoring query/hash, trailing
-     * slash, and encoding differences (themes often differ from get_permalink
-     * on one of those axes).
+     * Compare permalinks by origin + path, ignoring query/hash, trailing slash,
+     * and encoding — themes often differ from get_permalink on one of those.
      */
     function normalise(url) {
         if (! url) {

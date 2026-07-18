@@ -3,9 +3,9 @@
 namespace Datalumo\Wp\Support;
 
 /**
- * Accessor over the plugin's single settings option. Keys use dot notation
+ * Accessor over the plugin's single settings option, keyed by dot notation
  * ("chatbot.widget_key"). The option name is distinct from both legacy
- * Datalumo plugins so all three can coexist installed.
+ * Datalumo plugins so all three can coexist.
  */
 class Options
 {
@@ -62,9 +62,8 @@ class Options
 
     /**
      * The Datalumo app URL (no trailing slash). A DATALUMO_API_URL constant
-     * (e.g. http://dl.test in development) beats the stored setting. Earlier
-     * plugin generations configured the full API URL, so a trailing
-     * /api/v1 is tolerated and stripped.
+     * beats the stored setting. Earlier plugins stored the full API URL, so a
+     * trailing /api/v1 is tolerated and stripped.
      */
     public static function baseUrl(): string
     {
