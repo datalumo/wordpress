@@ -76,6 +76,22 @@ class Interceptor
         $pool = $this->resolvePool($ids, $query);
         $pool = $this->reorder($pool, $query);
 
+        // Temporary diagnostic: shows whether interception ran for this search,
+        // how many hits Datalumo returned, and the order the pool ends up in.
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf(
+                '[Datalumo debug] s="%s" post_type=%s datalumo_hits=%d pool=%d top=[%s]',
+                (string) $query->get('s'),
+                var_export($query->get('post_type'), true),
+                count($ids),
+                count($pool),
+                implode(' | ', array_map(
+                    fn ($p) => $p->ID.':'.get_the_title($p),
+                    array_slice($pool, 0, 6),
+                )),
+            ));
+        }
+
         // Zero-based, matching the widget SDK's wire convention — the
         // dashboard renders ranks as #rank+1. Keys are the absolute
         // permalinks themes render; the browser-side matcher normalises
