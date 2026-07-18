@@ -11,6 +11,10 @@ use Datalumo\Wp\Support\Options;
  * results; events go straight to the Datalumo API through the SDK,
  * tagged with the search session the interceptor's API call returned so
  * each click ties back to the query that produced it.
+ *
+ * Result clicks are matched against the interceptor's permalink→rank map
+ * (not a guessed results container), so theme markup that puts links
+ * outside #primary / main still reports.
  */
 class ClickTracking
 {

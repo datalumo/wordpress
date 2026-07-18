@@ -77,11 +77,17 @@ class Interceptor
         $pool = $this->reorder($pool, $query);
 
         // Zero-based, matching the widget SDK's wire convention — the
-        // dashboard renders ranks as #rank+1.
+        // dashboard renders ranks as #rank+1. Keys are the absolute
+        // permalinks themes render; the browser-side matcher normalises
+        // trailing slashes / encoding before comparing.
         $ranks = [];
 
         foreach ($pool as $index => $post) {
-            $ranks[get_permalink($post)] = $index;
+            $permalink = get_permalink($post);
+
+            if (is_string($permalink) && $permalink !== '') {
+                $ranks[$permalink] = $index;
+            }
         }
 
         self::$lastSearch = [
