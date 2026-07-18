@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.0.2
+Stable tag: 0.0.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 5. Add a widget key to enable the chat, search box, or enhanced search.
 
 == Changelog ==
+
+= 0.0.3 =
+* Enhanced search: result clicks are matched by rank, so they're tracked even when the theme renders links outside the main results container.
+* Result clicks tie to the originating search session for accurate analytics.
 
 = 0.0.2 =
 * Connect & test now uses the custom Datalumo base URL from the settings form.
