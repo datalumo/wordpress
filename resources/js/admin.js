@@ -45,10 +45,20 @@
             connectButton.disabled = true;
             result.textContent = '…';
 
-            post('datalumo_connect', {
+            var payload = {
                 organisation_id: document.getElementById('datalumo-organisation-id').value.trim(),
                 token: document.getElementById('datalumo-token').value.trim(),
-            }).then(function (response) {
+            };
+
+            // Use the URL on screen (may not be saved yet). Field is absent
+            // when DATALUMO_API_URL is defined in wp-config.
+            var apiUrlField = document.getElementById('datalumo-api-url');
+
+            if (apiUrlField) {
+                payload.api_url = apiUrlField.value.trim();
+            }
+
+            post('datalumo_connect', payload).then(function (response) {
                 connectButton.disabled = false;
 
                 if (response.success) {

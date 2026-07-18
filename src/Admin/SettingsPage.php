@@ -96,10 +96,10 @@ class SettingsPage
 
     private function saveConnection(array $input): void
     {
-        // The token itself is saved by the AJAX connect flow (so it's tested
-        // before it's stored); the form only carries the base URL override.
+        // Base URL can be saved here without connecting; Connect & test also
+        // persists it after a successful /me call (see Ajax::connect).
         if (array_key_exists('api_url', $input)) {
-            Options::set('api_url', esc_url_raw((string) $input['api_url']) ?: 'https://datalumo.com');
+            Options::set('api_url', esc_url_raw((string) $input['api_url']) ?: 'https://datalumo.app');
         }
     }
 

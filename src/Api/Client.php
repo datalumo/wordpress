@@ -18,10 +18,13 @@ class Client
     /**
      * GET /me — connection test + organisation/source discovery. The API
      * scopes tokens to an organisation, so both are needed to connect.
+     *
+     * @param string|null $baseUrl Optional base URL override (e.g. from the
+     *                             settings form before it has been saved).
      */
-    public function me(string $organisationId, string $token): array
+    public function me(string $organisationId, string $token, ?string $baseUrl = null): array
     {
-        return $this->request('GET', $this->orgUrl($organisationId, 'me'), token: $token);
+        return $this->request('GET', $this->orgUrl($organisationId, 'me', $baseUrl), token: $token);
     }
 
     public function pushPage(string $sourceId, array $payload): array
@@ -58,9 +61,13 @@ class Client
         );
     }
 
-    private function orgUrl(string $organisationId, string $path): string
+    private function orgUrl(string $organisationId, string $path, ?string $baseUrl = null): string
     {
-        return Options::baseUrl() . '/api/v1/' . rawurlencode($organisationId) . '/' . $path;
+        $base = $baseUrl !== null && $baseUrl !== ''
+            ? Options::normaliseBaseUrl($baseUrl)
+            : Options::baseUrl();
+
+        return $base . '/api/v1/' . rawurlencode($organisationId) . '/' . $path;
     }
 
     private function sourceUrl(string $sourceId, string $path): string

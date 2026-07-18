@@ -48,7 +48,7 @@ $tabs = [
                         <th scope="row"><label for="datalumo-api-url"><?php esc_html_e('Datalumo URL', 'datalumo'); ?></label></th>
                         <td>
                             <input type="url" id="datalumo-api-url" name="api_url" class="regular-text"
-                                   value="<?php echo esc_attr(Options::get('api_url', 'https://datalumo.com')); ?>" />
+                                   value="<?php echo esc_attr(Options::get('api_url', 'https://datalumo.app')); ?>" />
                             <p class="description"><?php esc_html_e('Leave as-is unless you were told otherwise.', 'datalumo'); ?></p>
                         </td>
                     </tr>
@@ -91,6 +91,9 @@ $tabs = [
                     </td>
                 </tr>
             </table>
+            <?php if (! defined('DATALUMO_API_URL')) : ?>
+                <?php submit_button(__('Save URL', 'datalumo')); ?>
+            <?php endif; ?>
         <?php elseif ($tab === 'content-sync') : ?>
             <?php if (! Options::isConnected()) : ?>
                 <p><?php esc_html_e('Connect your account first.', 'datalumo'); ?></p>

@@ -26,6 +26,10 @@ class Ajax
      * The token input is type=password and never re-renders a saved value
      * (only a "saved" placeholder), so an empty POST token falls back to the
      * stored one — same as re-testing without re-pasting the secret.
+     *
+     * The base URL is taken from the form field when present so Connect &
+     * test uses the value on screen even if Settings has not been saved yet.
+     * On success it is persisted with the token.
      */
     public function connect(): void
     {
@@ -33,6 +37,9 @@ class Ajax
 
         $organisationId = sanitize_text_field((string) ($_POST['organisation_id'] ?? ''));
         $token = sanitize_text_field((string) ($_POST['token'] ?? ''));
+        $apiUrl = array_key_exists('api_url', $_POST)
+            ? (esc_url_raw((string) wp_unslash($_POST['api_url'])) ?: 'https://datalumo.app')
+            : null;
 
         if ($organisationId === '') {
             $organisationId = (string) Options::get('organisation.id', '');
@@ -47,16 +54,22 @@ class Ajax
         }
 
         try {
-            $me = (new Client())->me($organisationId, $token);
+            $me = (new Client())->me($organisationId, $token, $apiUrl);
         } catch (ApiException $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }
 
-        Options::merge([
+        $stored = [
             'api_token' => $token,
             'organisation' => $me['organisation'] ?? ['id' => $organisationId],
             'sources' => $me['sources'] ?? [],
-        ]);
+        ];
+
+        if ($apiUrl !== null) {
+            $stored['api_url'] = $apiUrl;
+        }
+
+        Options::merge($stored);
 
         wp_send_json_success([
             'organisation' => $me['organisation'] ?? null,

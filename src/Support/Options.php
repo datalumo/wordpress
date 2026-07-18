@@ -72,6 +72,15 @@ class Options
             ? (string) DATALUMO_API_URL
             : (string) self::get('api_url', 'https://datalumo.app');
 
+        return self::normaliseBaseUrl($url);
+    }
+
+    /**
+     * Strip a trailing /api(/vN) path segment and trailing slashes so either
+     * the app origin or a full API base can be stored.
+     */
+    public static function normaliseBaseUrl(string $url): string
+    {
         return rtrim((string) preg_replace('#/api(/v\d+)?/?$#', '', rtrim($url, '/')), '/');
     }
 
