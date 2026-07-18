@@ -66,7 +66,13 @@ $tabs = [
                     <td>
                         <input type="password" id="datalumo-token" class="regular-text code" autocomplete="off"
                                placeholder="<?php echo Options::get('api_token') ? esc_attr__('•••••••• (saved)', 'datalumo') : ''; ?>" />
-                        <p class="description"><?php esc_html_e('Create a token with the pages abilities in your dashboard under API keys.', 'datalumo'); ?></p>
+                        <p class="description">
+                            <?php if (Options::get('api_token')) : ?>
+                                <?php esc_html_e('Leave blank to re-test, or paste a new token to replace it.', 'datalumo'); ?>
+                            <?php else : ?>
+                                <?php esc_html_e('Create a token under API keys in your Datalumo dashboard.', 'datalumo'); ?>
+                            <?php endif; ?>
+                        </p>
                     </td>
                 </tr>
                 <tr>

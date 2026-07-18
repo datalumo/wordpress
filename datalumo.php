@@ -5,14 +5,15 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Datalumo
- * Plugin URI:        https://datalumo.com
+ * Plugin URI:        https://github.com/datalumo/wordpress
  * Description:       Sync your WordPress content to Datalumo and add AI-powered search and chat to your site.
- * Version:           1.0.0
+ * Version:           0.0.1
  * Requires at least: 6.0
  * Requires PHP:      8.1
  * Author:            Jeffrey van Rossum
  * Author URI:        https://vanrossum.dev
  * Text Domain:       datalumo
+ * Domain Path:       /languages
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -24,7 +25,7 @@ if (! defined('ABSPATH')) {
 }
 
 if (! defined('DATALUMO_VERSION')) {
-    define('DATALUMO_VERSION', '1.0.0');
+    define('DATALUMO_VERSION', '0.0.1');
     define('DATALUMO_FILE', __FILE__);
     define('DATALUMO_DIR', __DIR__);
     define('DATALUMO_URL', plugin_dir_url(__FILE__));

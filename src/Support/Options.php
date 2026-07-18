@@ -70,7 +70,7 @@ class Options
     {
         $url = defined('DATALUMO_API_URL') && DATALUMO_API_URL
             ? (string) DATALUMO_API_URL
-            : (string) self::get('api_url', 'https://datalumo.com');
+            : (string) self::get('api_url', 'https://datalumo.app');
 
         return rtrim((string) preg_replace('#/api(/v\d+)?/?$#', '', rtrim($url, '/')), '/');
     }

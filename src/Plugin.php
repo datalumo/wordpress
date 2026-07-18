@@ -8,6 +8,7 @@ use Datalumo\Wp\Embed\Embed;
 use Datalumo\Wp\Search\ClickTracking;
 use Datalumo\Wp\Search\Interceptor;
 use Datalumo\Wp\Search\Summary;
+use Datalumo\Wp\Support\UpdateChecker;
 use Datalumo\Wp\Sync\BulkSync;
 use Datalumo\Wp\Sync\ContentSync;
 
@@ -29,6 +30,9 @@ class Plugin
         }
 
         $this->booted = true;
+
+        // Outside admin-only hooks so WP-CLI and management tools see updates too.
+        UpdateChecker::register();
 
         add_action('plugins_loaded', function (): void {
             load_plugin_textdomain('datalumo', false, dirname(plugin_basename(DATALUMO_FILE)) . '/languages');

@@ -39,7 +39,7 @@ class SettingsPage
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce(Ajax::NONCE),
             'i18n' => [
-                'connected' => __('Connected to %s — %d source(s) available. Save the page to keep it.', 'datalumo'),
+                'connected' => __('Connected to %s — %d source(s) available.', 'datalumo'),
                 'connectionFailed' => __('Connection failed:', 'datalumo'),
                 'syncProgress' => __('%1$d of %2$d posts synced…', 'datalumo'),
                 'syncDone' => __('Sync complete.', 'datalumo'),

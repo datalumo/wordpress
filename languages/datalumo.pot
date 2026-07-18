@@ -1,0 +1,274 @@
+# Copyright (C) 2026 Jeffrey van Rossum
+# This file is distributed under the same license as the Datalumo plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Datalumo 1.0.0\n"
+"Report-Msgid-Bugs-To: https://datalumo.app\n"
+"POT-Creation-Date: 2026-07-18 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: datalumo\n"
+
+#: datalumo.php
+msgid "Sync your WordPress content to Datalumo and add AI-powered search and chat to your site."
+msgstr ""
+
+#: src/Plugin.php
+msgid "Datalumo is almost ready — connect your account to start syncing content."
+msgstr ""
+
+#: src/Plugin.php
+msgid "Open settings"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+#: resources/views/settings.php
+msgid "Datalumo"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Connected to %s — %d source(s) available."
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Connection failed:"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "%1$d of %2$d posts synced…"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Sync complete."
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+#: src/Admin/Ajax.php
+msgid "Not allowed."
+msgstr ""
+
+#: src/Admin/Ajax.php
+msgid "Both the organisation ID and an API token are required."
+msgstr ""
+
+#: src/Api/Client.php
+msgid "Invalid widget key — copy it from the widget editor."
+msgstr ""
+
+#: src/Api/Client.php
+msgid "Datalumo request failed (%d)."
+msgstr ""
+
+#: src/Sync/BulkSync.php
+msgid "Unknown sync configuration."
+msgstr ""
+
+#: src/Search/Summary.php
+msgid "AI Summary"
+msgstr ""
+
+#: src/Search/Summary.php
+msgid "Show more"
+msgstr ""
+
+#: src/Search/Summary.php
+msgid "Show less"
+msgstr ""
+
+#: src/Search/Summary.php
+msgid "Summarising the best results…"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Connection"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Content sync"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Chatbot"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Search box"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Enhanced search"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Settings saved."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Datalumo URL"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Leave as-is unless you were told otherwise."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Organisation ID"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Find it next to your API keys in the Datalumo dashboard."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "API token"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "•••••••• (saved)"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Leave blank to re-test, or paste a new token to replace it."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Create a token under API keys in your Datalumo dashboard."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Connect & test"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Connected to %1$s (%2$d sources)."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Connect your account first."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Each sync pushes the chosen post types into one Datalumo source. Create a source of type \"API\" in your dashboard first."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Source"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "— choose a source —"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Post types"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Full sync"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Sync now"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Cancel"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Custom field and taxonomy mappings can be added per sync with the datalumo_page_payload filter for now."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Save syncs"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Chat widget"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Show the floating chat on every page"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Widget key"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Copy it from the widget editor (\"For developers\"). Add this site to the widget's websites list."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Visitor identity"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Let logged-in users continue their conversations across visits"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Identity signing secret"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "From the same \"For developers\" section. Never exposed to the browser — used to sign user ids server-side."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Tip: use the [datalumo_chat] shortcode to embed the chat inline on a page."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "A search-type widget key. Place the box anywhere with the [datalumo_search] shortcode."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Serve WordPress search results from Datalumo (falls back to native search on any error)"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "A search-type widget key; this site must be in its websites list."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Limit to post types"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Leave all unchecked to enhance every search."
+msgstr ""
+
+#: resources/views/settings.php
+msgid "AI summary"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Show a streamed AI answer above the results"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Summary placement"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "auto"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Before results"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "After results"
+msgstr ""
+
+#: resources/views/settings.php
+msgid "Optional CSS selector of the results container; detected automatically when empty."
+msgstr ""
+

@@ -1,0 +1,57 @@
+name: Release
+
+# Build a distributable plugin zip and attach it to the GitHub release whenever
+# a version tag is pushed. The Datalumo plugin checks for updates against these
+# release assets (see src/Support/UpdateChecker.php), so the zip must contain the
+# Composer-built vendor/ directory — GitHub's auto-generated source zip does not.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction
+
+      - name: Verify tag matches plugin version
+        run: |
+          HEADER_VERSION="$(grep -oP 'Version:\s*\K[0-9.]+' datalumo.php)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          echo "Plugin header: ${HEADER_VERSION} — tag: ${TAG_VERSION}"
+          if [ "${HEADER_VERSION}" != "${TAG_VERSION}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match plugin header version ${HEADER_VERSION}. Bump the Version header and Stable tag before tagging."
+            exit 1
+          fi
+
+      - name: Build plugin zip
+        run: |
+          mkdir -p build/datalumo
+          rsync -a ./ build/datalumo/ \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.gitignore' \
+            --exclude 'build' \
+            --exclude '*.zip'
+          (cd build && zip -rq datalumo.zip datalumo)
+
+      - name: Create release and upload asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/datalumo.zip
+          generate_release_notes: true

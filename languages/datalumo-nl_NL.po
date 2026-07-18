@@ -1,0 +1,275 @@
+# Dutch (Netherlands) translation for Datalumo
+# Copyright (C) 2026 Jeffrey van Rossum
+# This file is distributed under the same license as the Datalumo plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Datalumo 1.0.0\n"
+"Report-Msgid-Bugs-To: https://datalumo.app\n"
+"POT-Creation-Date: 2026-07-18 12:00+0000\n"
+"PO-Revision-Date: 2026-07-18 12:00+0000\n"
+"Last-Translator: Jeffrey van Rossum\n"
+"Language-Team: Dutch\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: datalumo\n"
+
+#: datalumo.php
+msgid "Sync your WordPress content to Datalumo and add AI-powered search and chat to your site."
+msgstr "Synchroniseer je WordPress-content met Datalumo en voeg AI-gestuurde zoekfunctie en chat toe aan je site."
+
+#: src/Plugin.php
+msgid "Datalumo is almost ready — connect your account to start syncing content."
+msgstr "Datalumo is bijna klaar — koppel je account om content te synchroniseren."
+
+#: src/Plugin.php
+msgid "Open settings"
+msgstr "Instellingen openen"
+
+#: src/Admin/SettingsPage.php
+#: resources/views/settings.php
+msgid "Datalumo"
+msgstr "Datalumo"
+
+#: src/Admin/SettingsPage.php
+msgid "Connected to %s — %d source(s) available."
+msgstr "Verbonden met %s — %d bron(nen) beschikbaar."
+
+#: src/Admin/SettingsPage.php
+msgid "Connection failed:"
+msgstr "Verbinding mislukt:"
+
+#: src/Admin/SettingsPage.php
+msgid "%1$d of %2$d posts synced…"
+msgstr "%1$d van %2$d berichten gesynchroniseerd…"
+
+#: src/Admin/SettingsPage.php
+msgid "Sync complete."
+msgstr "Synchronisatie voltooid."
+
+#: src/Admin/SettingsPage.php
+#: src/Admin/Ajax.php
+msgid "Not allowed."
+msgstr "Niet toegestaan."
+
+#: src/Admin/Ajax.php
+msgid "Both the organisation ID and an API token are required."
+msgstr "Zowel het organisatienummer als een API-token zijn verplicht."
+
+#: src/Api/Client.php
+msgid "Invalid widget key — copy it from the widget editor."
+msgstr "Ongeldige widget-sleutel — kopieer deze uit de widget-editor."
+
+#: src/Api/Client.php
+msgid "Datalumo request failed (%d)."
+msgstr "Datalumo-verzoek mislukt (%d)."
+
+#: src/Sync/BulkSync.php
+msgid "Unknown sync configuration."
+msgstr "Onbekende synchronisatie-instelling."
+
+#: src/Search/Summary.php
+msgid "AI Summary"
+msgstr "AI-samenvatting"
+
+#: src/Search/Summary.php
+msgid "Show more"
+msgstr "Meer tonen"
+
+#: src/Search/Summary.php
+msgid "Show less"
+msgstr "Minder tonen"
+
+#: src/Search/Summary.php
+msgid "Summarising the best results…"
+msgstr "De beste resultaten worden samengevat…"
+
+#: resources/views/settings.php
+msgid "Connection"
+msgstr "Verbinding"
+
+#: resources/views/settings.php
+msgid "Content sync"
+msgstr "Content synchroniseren"
+
+#: resources/views/settings.php
+msgid "Chatbot"
+msgstr "Chatbot"
+
+#: resources/views/settings.php
+msgid "Search box"
+msgstr "Zoekveld"
+
+#: resources/views/settings.php
+msgid "Enhanced search"
+msgstr "Verbeterd zoeken"
+
+#: resources/views/settings.php
+msgid "Settings saved."
+msgstr "Instellingen opgeslagen."
+
+#: resources/views/settings.php
+msgid "Datalumo URL"
+msgstr "Datalumo-URL"
+
+#: resources/views/settings.php
+msgid "Leave as-is unless you were told otherwise."
+msgstr "Laat dit staan, tenzij je iets anders hebt gehoord."
+
+#: resources/views/settings.php
+msgid "Organisation ID"
+msgstr "Organisatienummer"
+
+#: resources/views/settings.php
+msgid "Find it next to your API keys in the Datalumo dashboard."
+msgstr "Je vindt dit naast je API-sleutels in het Datalumo-dashboard."
+
+#: resources/views/settings.php
+msgid "API token"
+msgstr "API-token"
+
+#: resources/views/settings.php
+msgid "•••••••• (saved)"
+msgstr "•••••••• (opgeslagen)"
+
+#: resources/views/settings.php
+msgid "Leave blank to re-test, or paste a new token to replace it."
+msgstr "Laat leeg om opnieuw te testen, of plak een nieuw token om het te vervangen."
+
+#: resources/views/settings.php
+msgid "Create a token under API keys in your Datalumo dashboard."
+msgstr "Maak een token onder API-sleutels in je Datalumo-dashboard."
+
+#: resources/views/settings.php
+msgid "Connect & test"
+msgstr "Verbinden en testen"
+
+#: resources/views/settings.php
+msgid "Connected to %1$s (%2$d sources)."
+msgstr "Verbonden met %1$s (%2$d bronnen)."
+
+#: resources/views/settings.php
+msgid "Connect your account first."
+msgstr "Koppel eerst je account."
+
+#: resources/views/settings.php
+msgid "Each sync pushes the chosen post types into one Datalumo source. Create a source of type \"API\" in your dashboard first."
+msgstr "Elke synchronisatie stuurt de gekozen berichttypen naar één Datalumo-bron. Maak eerst een bron van het type \"API\" aan in je dashboard."
+
+#: resources/views/settings.php
+msgid "Source"
+msgstr "Bron"
+
+#: resources/views/settings.php
+msgid "— choose a source —"
+msgstr "— kies een bron —"
+
+#: resources/views/settings.php
+msgid "Post types"
+msgstr "Berichttypen"
+
+#: resources/views/settings.php
+msgid "Full sync"
+msgstr "Volledige synchronisatie"
+
+#: resources/views/settings.php
+msgid "Sync now"
+msgstr "Nu synchroniseren"
+
+#: resources/views/settings.php
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: resources/views/settings.php
+msgid "Custom field and taxonomy mappings can be added per sync with the datalumo_page_payload filter for now."
+msgstr "Koppelingen van aangepaste velden en taxonomieën kun je voorlopig per synchronisatie toevoegen met het filter datalumo_page_payload."
+
+#: resources/views/settings.php
+msgid "Save syncs"
+msgstr "Synchronisaties opslaan"
+
+#: resources/views/settings.php
+msgid "Chat widget"
+msgstr "Chatwidget"
+
+#: resources/views/settings.php
+msgid "Show the floating chat on every page"
+msgstr "Toon de zwevende chat op elke pagina"
+
+#: resources/views/settings.php
+msgid "Widget key"
+msgstr "Widget-sleutel"
+
+#: resources/views/settings.php
+msgid "Copy it from the widget editor (\"For developers\"). Add this site to the widget's websites list."
+msgstr "Kopieer deze uit de widget-editor (\"For developers\"). Voeg deze site toe aan de websites-lijst van de widget."
+
+#: resources/views/settings.php
+msgid "Visitor identity"
+msgstr "Bezoekersidentiteit"
+
+#: resources/views/settings.php
+msgid "Let logged-in users continue their conversations across visits"
+msgstr "Laat ingelogde gebruikers hun gesprekken over bezoeken heen voortzetten"
+
+#: resources/views/settings.php
+msgid "Identity signing secret"
+msgstr "Geheim voor identiteitsondertekening"
+
+#: resources/views/settings.php
+msgid "From the same \"For developers\" section. Never exposed to the browser — used to sign user ids server-side."
+msgstr "Uit hetzelfde gedeelte \"For developers\". Wordt nooit naar de browser gestuurd — alleen server-side gebruikt om gebruikers-id's te ondertekenen."
+
+#: resources/views/settings.php
+msgid "Tip: use the [datalumo_chat] shortcode to embed the chat inline on a page."
+msgstr "Tip: gebruik de shortcode [datalumo_chat] om de chat in een pagina te plaatsen."
+
+#: resources/views/settings.php
+msgid "A search-type widget key. Place the box anywhere with the [datalumo_search] shortcode."
+msgstr "Een widget-sleutel van het type zoeken. Plaats het zoekveld overal met de shortcode [datalumo_search]."
+
+#: resources/views/settings.php
+msgid "Serve WordPress search results from Datalumo (falls back to native search on any error)"
+msgstr "Toon WordPress-zoekresultaten via Datalumo (valt bij een fout terug op de standaard zoekfunctie)"
+
+#: resources/views/settings.php
+msgid "A search-type widget key; this site must be in its websites list."
+msgstr "Een widget-sleutel van het type zoeken; deze site moet in de websites-lijst staan."
+
+#: resources/views/settings.php
+msgid "Limit to post types"
+msgstr "Beperk tot berichttypen"
+
+#: resources/views/settings.php
+msgid "Leave all unchecked to enhance every search."
+msgstr "Laat alles uit om elke zoekopdracht te verbeteren."
+
+#: resources/views/settings.php
+msgid "AI summary"
+msgstr "AI-samenvatting"
+
+#: resources/views/settings.php
+msgid "Show a streamed AI answer above the results"
+msgstr "Toon een gestreamd AI-antwoord boven de resultaten"
+
+#: resources/views/settings.php
+msgid "Summary placement"
+msgstr "Plaatsing van de samenvatting"
+
+#: resources/views/settings.php
+msgid "auto"
+msgstr "auto"
+
+#: resources/views/settings.php
+msgid "Before results"
+msgstr "Voor de resultaten"
+
+#: resources/views/settings.php
+msgid "After results"
+msgstr "Na de resultaten"
+
+#: resources/views/settings.php
+msgid "Optional CSS selector of the results container; detected automatically when empty."
+msgstr "Optionele CSS-selector van de resultatencontainer; wordt automatisch bepaald als dit leeg is."

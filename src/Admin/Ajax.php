@@ -22,6 +22,10 @@ class Ajax
     /**
      * Verify the pasted organisation id + token against /me; on success cache
      * the organisation and its sources so the pickers render offline.
+     *
+     * The token input is type=password and never re-renders a saved value
+     * (only a "saved" placeholder), so an empty POST token falls back to the
+     * stored one — same as re-testing without re-pasting the secret.
      */
     public function connect(): void
     {
@@ -29,6 +33,14 @@ class Ajax
 
         $organisationId = sanitize_text_field((string) ($_POST['organisation_id'] ?? ''));
         $token = sanitize_text_field((string) ($_POST['token'] ?? ''));
+
+        if ($organisationId === '') {
+            $organisationId = (string) Options::get('organisation.id', '');
+        }
+
+        if ($token === '') {
+            $token = (string) Options::get('api_token', '');
+        }
 
         if ($organisationId === '' || $token === '') {
             wp_send_json_error(['message' => __('Both the organisation ID and an API token are required.', 'datalumo')]);

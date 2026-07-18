@@ -1,0 +1,275 @@
+# Simplified Chinese translation for Datalumo
+# Copyright (C) 2026 Jeffrey van Rossum
+# This file is distributed under the same license as the Datalumo plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Datalumo 1.0.0\n"
+"Report-Msgid-Bugs-To: https://datalumo.app\n"
+"POT-Creation-Date: 2026-07-18 12:00+0000\n"
+"PO-Revision-Date: 2026-07-18 12:00+0000\n"
+"Last-Translator: Jeffrey van Rossum\n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Domain: datalumo\n"
+
+#: datalumo.php
+msgid "Sync your WordPress content to Datalumo and add AI-powered search and chat to your site."
+msgstr "将 WordPress 内容同步到 Datalumo，并为网站添加 AI 搜索与聊天。"
+
+#: src/Plugin.php
+msgid "Datalumo is almost ready — connect your account to start syncing content."
+msgstr "Datalumo 即将就绪 — 连接你的账户以开始同步内容。"
+
+#: src/Plugin.php
+msgid "Open settings"
+msgstr "打开设置"
+
+#: src/Admin/SettingsPage.php
+#: resources/views/settings.php
+msgid "Datalumo"
+msgstr "Datalumo"
+
+#: src/Admin/SettingsPage.php
+msgid "Connected to %s — %d source(s) available."
+msgstr "已连接到 %s — 可用 %d 个来源。"
+
+#: src/Admin/SettingsPage.php
+msgid "Connection failed:"
+msgstr "连接失败："
+
+#: src/Admin/SettingsPage.php
+msgid "%1$d of %2$d posts synced…"
+msgstr "已同步 %1$d / %2$d 篇文章…"
+
+#: src/Admin/SettingsPage.php
+msgid "Sync complete."
+msgstr "同步完成。"
+
+#: src/Admin/SettingsPage.php
+#: src/Admin/Ajax.php
+msgid "Not allowed."
+msgstr "无权操作。"
+
+#: src/Admin/Ajax.php
+msgid "Both the organisation ID and an API token are required."
+msgstr "必须同时填写组织 ID 和 API 令牌。"
+
+#: src/Api/Client.php
+msgid "Invalid widget key — copy it from the widget editor."
+msgstr "无效的小组件密钥 — 请从小组件编辑器复制。"
+
+#: src/Api/Client.php
+msgid "Datalumo request failed (%d)."
+msgstr "Datalumo 请求失败（%d）。"
+
+#: src/Sync/BulkSync.php
+msgid "Unknown sync configuration."
+msgstr "未知的同步配置。"
+
+#: src/Search/Summary.php
+msgid "AI Summary"
+msgstr "AI 摘要"
+
+#: src/Search/Summary.php
+msgid "Show more"
+msgstr "显示更多"
+
+#: src/Search/Summary.php
+msgid "Show less"
+msgstr "显示更少"
+
+#: src/Search/Summary.php
+msgid "Summarising the best results…"
+msgstr "正在汇总最佳结果…"
+
+#: resources/views/settings.php
+msgid "Connection"
+msgstr "连接"
+
+#: resources/views/settings.php
+msgid "Content sync"
+msgstr "内容同步"
+
+#: resources/views/settings.php
+msgid "Chatbot"
+msgstr "聊天机器人"
+
+#: resources/views/settings.php
+msgid "Search box"
+msgstr "搜索框"
+
+#: resources/views/settings.php
+msgid "Enhanced search"
+msgstr "增强搜索"
+
+#: resources/views/settings.php
+msgid "Settings saved."
+msgstr "设置已保存。"
+
+#: resources/views/settings.php
+msgid "Datalumo URL"
+msgstr "Datalumo 网址"
+
+#: resources/views/settings.php
+msgid "Leave as-is unless you were told otherwise."
+msgstr "除非另有说明，否则请保持默认。"
+
+#: resources/views/settings.php
+msgid "Organisation ID"
+msgstr "组织 ID"
+
+#: resources/views/settings.php
+msgid "Find it next to your API keys in the Datalumo dashboard."
+msgstr "可在 Datalumo 控制台的 API 密钥旁找到。"
+
+#: resources/views/settings.php
+msgid "API token"
+msgstr "API 令牌"
+
+#: resources/views/settings.php
+msgid "•••••••• (saved)"
+msgstr "••••••••（已保存）"
+
+#: resources/views/settings.php
+msgid "Leave blank to re-test, or paste a new token to replace it."
+msgstr "留空可重新测试，或粘贴新令牌以替换。"
+
+#: resources/views/settings.php
+msgid "Create a token under API keys in your Datalumo dashboard."
+msgstr "在 Datalumo 控制台的「API 密钥」中创建令牌。"
+
+#: resources/views/settings.php
+msgid "Connect & test"
+msgstr "连接并测试"
+
+#: resources/views/settings.php
+msgid "Connected to %1$s (%2$d sources)."
+msgstr "已连接到 %1$s（%2$d 个来源）。"
+
+#: resources/views/settings.php
+msgid "Connect your account first."
+msgstr "请先连接你的账户。"
+
+#: resources/views/settings.php
+msgid "Each sync pushes the chosen post types into one Datalumo source. Create a source of type \"API\" in your dashboard first."
+msgstr "每条同步会将所选文章类型推送到一个 Datalumo 来源。请先在控制台创建一个类型为「API」的来源。"
+
+#: resources/views/settings.php
+msgid "Source"
+msgstr "来源"
+
+#: resources/views/settings.php
+msgid "— choose a source —"
+msgstr "— 选择来源 —"
+
+#: resources/views/settings.php
+msgid "Post types"
+msgstr "文章类型"
+
+#: resources/views/settings.php
+msgid "Full sync"
+msgstr "完整同步"
+
+#: resources/views/settings.php
+msgid "Sync now"
+msgstr "立即同步"
+
+#: resources/views/settings.php
+msgid "Cancel"
+msgstr "取消"
+
+#: resources/views/settings.php
+msgid "Custom field and taxonomy mappings can be added per sync with the datalumo_page_payload filter for now."
+msgstr "目前可通过 datalumo_page_payload 过滤器为每条同步添加自定义字段和分类映射。"
+
+#: resources/views/settings.php
+msgid "Save syncs"
+msgstr "保存同步"
+
+#: resources/views/settings.php
+msgid "Chat widget"
+msgstr "聊天小组件"
+
+#: resources/views/settings.php
+msgid "Show the floating chat on every page"
+msgstr "在每个页面显示浮动聊天"
+
+#: resources/views/settings.php
+msgid "Widget key"
+msgstr "小组件密钥"
+
+#: resources/views/settings.php
+msgid "Copy it from the widget editor (\"For developers\"). Add this site to the widget's websites list."
+msgstr "从小组件编辑器（「For developers」）复制。请将本站加入该小组件的网站列表。"
+
+#: resources/views/settings.php
+msgid "Visitor identity"
+msgstr "访客身份"
+
+#: resources/views/settings.php
+msgid "Let logged-in users continue their conversations across visits"
+msgstr "允许已登录用户在多次访问间继续对话"
+
+#: resources/views/settings.php
+msgid "Identity signing secret"
+msgstr "身份签名密钥"
+
+#: resources/views/settings.php
+msgid "From the same \"For developers\" section. Never exposed to the browser — used to sign user ids server-side."
+msgstr "同样在「For developers」部分。不会暴露给浏览器 — 仅在服务器端用于签署用户 ID。"
+
+#: resources/views/settings.php
+msgid "Tip: use the [datalumo_chat] shortcode to embed the chat inline on a page."
+msgstr "提示：使用 [datalumo_chat] 短代码可在页面中嵌入聊天。"
+
+#: resources/views/settings.php
+msgid "A search-type widget key. Place the box anywhere with the [datalumo_search] shortcode."
+msgstr "搜索类型小组件密钥。使用 [datalumo_search] 短代码可在任意位置放置搜索框。"
+
+#: resources/views/settings.php
+msgid "Serve WordPress search results from Datalumo (falls back to native search on any error)"
+msgstr "通过 Datalumo 提供 WordPress 搜索结果（出错时回退到原生搜索）"
+
+#: resources/views/settings.php
+msgid "A search-type widget key; this site must be in its websites list."
+msgstr "搜索类型小组件密钥；本站必须在其网站列表中。"
+
+#: resources/views/settings.php
+msgid "Limit to post types"
+msgstr "限制文章类型"
+
+#: resources/views/settings.php
+msgid "Leave all unchecked to enhance every search."
+msgstr "全部不勾选则增强所有搜索。"
+
+#: resources/views/settings.php
+msgid "AI summary"
+msgstr "AI 摘要"
+
+#: resources/views/settings.php
+msgid "Show a streamed AI answer above the results"
+msgstr "在结果上方显示流式 AI 回答"
+
+#: resources/views/settings.php
+msgid "Summary placement"
+msgstr "摘要位置"
+
+#: resources/views/settings.php
+msgid "auto"
+msgstr "自动"
+
+#: resources/views/settings.php
+msgid "Before results"
+msgstr "结果之前"
+
+#: resources/views/settings.php
+msgid "After results"
+msgstr "结果之后"
+
+#: resources/views/settings.php
+msgid "Optional CSS selector of the results container; detected automatically when empty."
+msgstr "结果容器的可选 CSS 选择器；为空时自动检测。"
