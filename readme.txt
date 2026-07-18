@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.0.3
+Stable tag: 0.0.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 5. Add a widget key to enable the chat, search box, or enhanced search.
 
 == Changelog ==
+
+= 0.0.4 =
+* Enhanced search: results now render in Datalumo's relevance order — other plugins (e.g. WooCommerce catalog sorting) can no longer reorder them and bury top matches.
+* Avoid a duplicate product-visibility filter on WooCommerce searches.
 
 = 0.0.3 =
 * Enhanced search: result clicks are matched by rank, so they're tracked even when the theme renders links outside the main results container.
