@@ -46,6 +46,7 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude '.gitignore' \
+            --exclude '.slimm' \
             --exclude 'build' \
             --exclude '*.zip'
           (cd build && zip -rq datalumo.zip datalumo)
