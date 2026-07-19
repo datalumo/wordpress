@@ -27,7 +27,13 @@ jobs:
           coverage: none
 
       - name: Install production dependencies
-        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction
+        # --ignore-platform-req=php: the release runs on the plugin's PHP floor
+        # (8.1), but the dev tooling (Pest) needs 8.3+. With no lock file present,
+        # Composer resolves the whole graph even under --no-dev, so the dev
+        # requirement's PHP gate would block the build. Dev deps aren't installed
+        # here and the prod deps have no upper PHP bound, so ignoring the PHP
+        # requirement leaves the shipped vendor/ unchanged.
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --ignore-platform-req=php
 
       - name: Verify tag matches plugin version
         run: |
