@@ -20,9 +20,22 @@
             "Datalumo\\Wp\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Datalumo\\Wp\\Tests\\": "tests/"
+        }
+    },
     "config": {
         "allow-plugins": {
-            "automattic/jetpack-autoloader": true
+            "automattic/jetpack-autoloader": true,
+            "pestphp/pest-plugin": true
         }
+    },
+    "require-dev": {
+        "pestphp/pest": "^4.7",
+        "brain/monkey": "^2.7"
+    },
+    "scripts": {
+        "test": "pest"
     }
 }

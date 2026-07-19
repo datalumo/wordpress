@@ -1,0 +1,33 @@
+name: Tests
+
+# Run the Pest unit suite on pushes and pull requests. Tests stub WordPress and
+# Action Scheduler with Brain Monkey, so no database or WP install is needed.
+# The dev tooling (Pest 4) needs a newer PHP than the plugin's 8.1 runtime floor.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  pest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.3', '8.4']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Run Pest
+        run: ./vendor/bin/pest --compact

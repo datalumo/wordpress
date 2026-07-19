@@ -48,7 +48,10 @@ jobs:
             --exclude '.gitignore' \
             --exclude '.slimm' \
             --exclude 'build' \
-            --exclude '*.zip'
+            --exclude '*.zip' \
+            --exclude 'tests' \
+            --exclude 'phpunit.xml' \
+            --exclude '.phpunit.cache'
           (cd build && zip -rq datalumo.zip datalumo)
 
       - name: Create release and upload asset
