@@ -23,6 +23,18 @@ class BulkSync
 
     public const GROUP = 'datalumo';
 
+    /**
+     * How many times one batch may be retried after a transient failure
+     * (rate limit, 5xx, network) before the run stops with the error shown.
+     * A batch the API keeps rejecting must not retry forever.
+     */
+    private const MAX_BATCH_ATTEMPTS = 6;
+
+    public function __construct(
+        private ?Client $client = null,
+        private ?PagePreparer $preparer = null,
+    ) {}
+
     public function register(): void
     {
         add_action(self::BATCH_HOOK, [$this, 'processBatch'], 10, 3);
@@ -104,11 +116,10 @@ class BulkSync
             return;
         }
 
-        $preparer = new PagePreparer();
         $pages = [];
 
         foreach ($posts as $post) {
-            $payload = $preparer->prepare($post, $sync['meta_mappings'] ?? []);
+            $payload = $this->preparer()->prepare($post, $sync['meta_mappings'] ?? []);
 
             if ($payload !== null) {
                 $pages[] = $payload;
@@ -117,29 +128,12 @@ class BulkSync
 
         try {
             if ($pages !== []) {
-                (new Client())->pushBatch($sync['source_id'], $pages);
+                $this->client()->pushBatch($sync['source_id'], $pages);
             }
         } catch (ApiException $e) {
             error_log(sprintf('[Datalumo] bulk batch at %d failed (%d): %s', $offset, $e->status, $e->getMessage()));
 
-            // Superseded/cancelled mid-push — leave the live run's state alone.
-            if (! $this->isCurrentRun($syncId, $run)) {
-                return;
-            }
-
-            // A full plan stops the whole run — remaining batches hit the same
-            // wall. Auth failures likewise never retry.
-            if ($e->isQuota()) {
-                $state = $this->readState($syncId);
-                $state['error'] = $e->getMessage();
-                $state['finished'] = time();
-                $this->writeState($syncId, $state);
-            } elseif (! $e->isAuthentication()) {
-                // Rate limited → resume per Retry-After; else back off five minutes.
-                $delay = $e->isRateLimited() ? ($e->retryAfter ?? 60) : 5 * MINUTE_IN_SECONDS;
-
-                as_schedule_single_action(time() + $delay, self::BATCH_HOOK, [$syncId, $offset, $run], self::GROUP);
-            }
+            $this->handleBatchError($syncId, $run, $offset, $e);
 
             return;
         }
@@ -152,11 +146,71 @@ class BulkSync
 
         $state = $this->readState($syncId);
         $state['processed'] = min($state['total'] ?? 0, ($state['processed'] ?? 0) + count($posts));
+        // A batch got through, so drop any retry bookkeeping for this offset.
+        unset($state['retry_offset'], $state['retry_count']);
         $this->writeState($syncId, $state);
 
         // Chain the next batch immediately — completion-based scheduling
         // can't burst, so no stagger needed.
         as_enqueue_async_action(self::BATCH_HOOK, [$syncId, $offset + $this->batchSize(), $run], self::GROUP);
+    }
+
+    /**
+     * Decide what a failed batch push means for the run. Errors the API will
+     * never accept as-is (auth, quota, other 4xx such as a validation
+     * rejection) stop the run with the reason shown; genuinely transient ones
+     * (rate limit, 5xx, network) retry the same offset with backoff, but only
+     * up to a cap so a permanently failing batch can't loop forever.
+     */
+    private function handleBatchError(string $syncId, string $run, int $offset, ApiException $e): void
+    {
+        // Superseded/cancelled mid-push — leave the live run's state alone.
+        if (! $this->isCurrentRun($syncId, $run)) {
+            return;
+        }
+
+        $transient = $e->isRateLimited() || $e->status === 0 || $e->status >= 500;
+
+        if (! $transient) {
+            // Auth, quota, or a rejected payload: retrying is pointless.
+            $this->failRun($syncId, $run, sprintf(
+                /* translators: 1: item offset, 2: error message */
+                __('Sync stopped at item %1$d: %2$s', 'datalumo'),
+                $offset,
+                $e->getMessage(),
+            ));
+
+            return;
+        }
+
+        $attempts = $this->registerAttempt($syncId, $run, $offset);
+
+        if ($attempts > self::MAX_BATCH_ATTEMPTS) {
+            $this->failRun($syncId, $run, sprintf(
+                /* translators: 1: item offset, 2: attempt count, 3: error message */
+                __('Sync stopped at item %1$d after %2$d attempts: %3$s', 'datalumo'),
+                $offset,
+                self::MAX_BATCH_ATTEMPTS,
+                $e->getMessage(),
+            ));
+
+            return;
+        }
+
+        // Rate limited → resume per Retry-After; else back off five minutes.
+        $delay = $e->isRateLimited() ? ($e->retryAfter ?? 60) : 5 * MINUTE_IN_SECONDS;
+
+        as_schedule_single_action(time() + $delay, self::BATCH_HOOK, [$syncId, $offset, $run], self::GROUP);
+    }
+
+    private function client(): Client
+    {
+        return $this->client ??= new Client();
+    }
+
+    private function preparer(): PagePreparer
+    {
+        return $this->preparer ??= new PagePreparer();
     }
 
     public function status(string $syncId): array
@@ -208,6 +262,47 @@ class BulkSync
 
         $state['finished'] = time();
         $this->writeState($syncId, $state);
+    }
+
+    /**
+     * Stop the current run and record why, so the failure surfaces in the UI
+     * instead of the batch retrying silently. No-op for a superseded run.
+     */
+    private function failRun(string $syncId, string $run, string $message): void
+    {
+        $state = $this->readState($syncId);
+
+        if (($state['run'] ?? null) !== $run) {
+            return;
+        }
+
+        $state['error'] = $message;
+        $state['finished'] = time();
+        $this->writeState($syncId, $state);
+    }
+
+    /**
+     * Count consecutive transient failures at one offset. The counter resets
+     * whenever a batch advances (see the success path), so it only climbs while
+     * the same offset keeps failing.
+     */
+    private function registerAttempt(string $syncId, string $run, int $offset): int
+    {
+        $state = $this->readState($syncId);
+
+        if (($state['run'] ?? null) !== $run) {
+            return PHP_INT_MAX;
+        }
+
+        $count = ($state['retry_offset'] ?? null) === $offset
+            ? (int) ($state['retry_count'] ?? 0) + 1
+            : 1;
+
+        $state['retry_offset'] = $offset;
+        $state['retry_count'] = $count;
+        $this->writeState($syncId, $state);
+
+        return $count;
     }
 
     private function findSync(string $syncId): ?array
