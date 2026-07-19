@@ -110,7 +110,18 @@ class BulkSync
         ]);
 
         if ($posts === []) {
-            // Ran past the last post — the chain ends here.
+            // Ran past the last post — the chain ends here. Tell Datalumo the
+            // push is complete so it starts indexing right away instead of on
+            // its next sweep. Best-effort: indexing self-starts server-side,
+            // so a failed kick costs at most a minute.
+            if ($this->isCurrentRun($syncId, $run)) {
+                try {
+                    $this->client()->indexSource($sync['source_id']);
+                } catch (ApiException $e) {
+                    error_log(sprintf('[Datalumo] index kick for %s failed (%d): %s', $sync['source_id'], $e->status, $e->getMessage()));
+                }
+            }
+
             $this->finishRun($syncId, $run);
 
             return;

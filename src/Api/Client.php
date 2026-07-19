@@ -42,6 +42,16 @@ class Client
     }
 
     /**
+     * Kick indexing for a source and get its progress back. Idempotent on the
+     * Datalumo side — safe to call any time; with nothing to index it is a
+     * plain status read (total / indexed / indexing / failed / queued).
+     */
+    public function indexSource(string $sourceId): array
+    {
+        return $this->request('POST', $this->sourceUrl($sourceId, 'index'));
+    }
+
+    /**
      * Widget search, authorised by this site's Origin.
      *
      * @param string $widgetKey compound "org-id/widget-id"

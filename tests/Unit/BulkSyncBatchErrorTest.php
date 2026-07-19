@@ -1,50 +1,7 @@
 <?php
 
 use Brain\Monkey\Functions;
-use Datalumo\Wp\Api\ApiException;
-use Datalumo\Wp\Api\Client;
 use Datalumo\Wp\Sync\BulkSync;
-use Datalumo\Wp\Sync\PagePreparer;
-
-/**
- * A preparer that turns any post into one canned payload, so these tests can
- * exercise the push/error handling without stubbing the WP content pipeline.
- */
-function fakePreparer(): PagePreparer
-{
-    return new class extends PagePreparer
-    {
-        public function prepare(WP_Post $post, array $metaMappings = []): ?array
-        {
-            return ['external_id' => '1', 'name' => 'x', 'content' => 'y', 'content_mime' => 'text/html'];
-        }
-    };
-}
-
-/**
- * A client whose pushBatch either succeeds or throws an ApiException with the
- * given HTTP status.
- */
-function fakeClient(?int $throwStatus = null): Client
-{
-    return new class($throwStatus) extends Client
-    {
-        public int $calls = 0;
-
-        public function __construct(private ?int $throwStatus) {}
-
-        public function pushBatch(string $sourceId, array $pages): array
-        {
-            $this->calls++;
-
-            if ($this->throwStatus !== null) {
-                throw new ApiException('boom', $this->throwStatus);
-            }
-
-            return [];
-        }
-    };
-}
 
 beforeEach(function () {
     seedSyncConfig();

@@ -75,8 +75,35 @@ it('finishes the run when the current batch runs past the last post', function (
     putSyncState(['run' => 'run-1', 'total' => 3, 'processed' => 3, 'started' => 100, 'finished' => null]);
     Functions\when('get_posts')->justReturn([]);
 
-    $this->sync->processBatch('sync-1', 999, 'run-1');
+    $client = fakeClient();
+    (new BulkSync($client, fakePreparer()))->processBatch('sync-1', 999, 'run-1');
 
+    expect(syncState()['finished'])->not->toBeNull();
+});
+
+it('kicks Datalumo indexing once when the run completes', function () {
+    putSyncState(['run' => 'run-1', 'total' => 3, 'processed' => 3, 'started' => 100, 'finished' => null]);
+    Functions\when('get_posts')->justReturn([]);
+
+    $client = fakeClient();
+    (new BulkSync($client, fakePreparer()))->processBatch('sync-1', 999, 'run-1');
+
+    // The push is done — the kick starts embedding server-side immediately
+    // instead of waiting for Datalumo's next sweep.
+    expect($client->indexed)->toBe(['src-1']);
+});
+
+it('still finishes the run when the index kick fails', function () {
+    putSyncState(['run' => 'run-1', 'total' => 3, 'processed' => 3, 'started' => 100, 'finished' => null]);
+    Functions\when('get_posts')->justReturn([]);
+
+    $client = fakeClient();
+    $client->indexThrowStatus = 500;
+
+    (new BulkSync($client, fakePreparer()))->processBatch('sync-1', 999, 'run-1');
+
+    // Best-effort: the server's sweep starts indexing on its own within a
+    // minute, so a failed kick must never wedge the run.
     expect(syncState()['finished'])->not->toBeNull();
 });
 
