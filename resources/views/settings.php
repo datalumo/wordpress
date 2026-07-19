@@ -98,7 +98,7 @@ $tabs = [
             <?php if (! Options::isConnected()) : ?>
                 <p><?php esc_html_e('Connect your account first.', 'datalumo'); ?></p>
             <?php else : ?>
-                <p class="description"><?php esc_html_e('Each sync pushes the chosen post types into one Datalumo source. Create a source of type "API" in your dashboard first.', 'datalumo'); ?></p>
+                <p class="description"><?php esc_html_e('Each sync pushes the chosen post types into one Datalumo source. Create a source for this WordPress-site in your dashboard first.', 'datalumo'); ?></p>
                 <div id="datalumo-syncs">
                     <?php foreach ($syncs === [] ? [[]] : $syncs as $index => $sync) : ?>
                         <fieldset class="datalumo-sync-row" data-index="<?php echo esc_attr((string) $index); ?>">

@@ -155,8 +155,8 @@ msgid "Connect your account first."
 msgstr "Koppel eerst je account."
 
 #: resources/views/settings.php
-msgid "Each sync pushes the chosen post types into one Datalumo source. Create a source of type \"API\" in your dashboard first."
-msgstr "Elke synchronisatie stuurt de gekozen berichttypen naar één Datalumo-bron. Maak eerst een bron van het type \"API\" aan in je dashboard."
+msgid "Each sync pushes the chosen post types into one Datalumo source. Create a source for this WordPress-site in your dashboard first."
+msgstr "Elke synchronisatie stuurt de gekozen berichttypen naar één Datalumo-bron. Maak eerst een bron voor deze WordPress-site aan in je dashboard."
 
 #: resources/views/settings.php
 msgid "Source"
