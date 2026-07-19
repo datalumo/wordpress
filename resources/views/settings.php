@@ -133,9 +133,10 @@ $tabs = [
                                 <?php if (($sync['id'] ?? '') !== '') : ?>
                                     <tr>
                                         <th scope="row"><?php esc_html_e('Full sync', 'datalumo'); ?></th>
-                                        <td>
+                                        <td class="datalumo-sync-controls" data-sync="<?php echo esc_attr($sync['id']); ?>">
                                             <button type="button" class="button datalumo-sync-start" data-sync="<?php echo esc_attr($sync['id']); ?>"><?php esc_html_e('Sync now', 'datalumo'); ?></button>
-                                            <button type="button" class="button datalumo-sync-cancel" data-sync="<?php echo esc_attr($sync['id']); ?>"><?php esc_html_e('Cancel', 'datalumo'); ?></button>
+                                            <button type="button" class="button datalumo-sync-cancel" data-sync="<?php echo esc_attr($sync['id']); ?>" disabled><?php esc_html_e('Cancel', 'datalumo'); ?></button>
+                                            <span class="datalumo-sync-spinner" aria-hidden="true"></span>
                                             <span class="datalumo-inline-result datalumo-sync-status" data-sync="<?php echo esc_attr($sync['id']); ?>"></span>
                                         </td>
                                     </tr>

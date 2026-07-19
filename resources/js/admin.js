@@ -81,35 +81,87 @@
 
     var pollTimers = {};
 
-    function pollStatus(syncId) {
-        var status = document.querySelector('.datalumo-sync-status[data-sync="' + syncId + '"]');
+    function syncEl(selector, syncId) {
+        return document.querySelector(selector + '[data-sync="' + syncId + '"]');
+    }
 
+    /**
+     * Reflect a running/idle sync across its row: while a run is in flight the
+     * "Sync now" button is disabled and the row shows a spinner, so it's clear
+     * one is already going and can't be started twice.
+     */
+    function applyRunning(syncId, running) {
+        var controls = syncEl('.datalumo-sync-controls', syncId);
+        var start = syncEl('.datalumo-sync-start', syncId);
+        var cancel = syncEl('.datalumo-sync-cancel', syncId);
+
+        if (start) {
+            start.disabled = running;
+        }
+
+        if (cancel) {
+            cancel.disabled = ! running;
+        }
+
+        if (controls) {
+            controls.classList.toggle('is-syncing', running);
+        }
+    }
+
+    function setStatus(syncId, text, tone) {
+        var status = syncEl('.datalumo-sync-status', syncId);
+
+        if (! status) {
+            return;
+        }
+
+        status.textContent = text;
+        status.classList.toggle('is-error', tone === 'error');
+        status.classList.toggle('is-success', tone === 'success');
+    }
+
+    function pollStatus(syncId) {
         post('datalumo_sync_status', { sync_id: syncId }).then(function (response) {
-            if (! response.success || ! status) {
+            if (! response.success) {
                 return;
             }
 
             var state = response.data;
 
             if (state.error) {
-                status.textContent = state.error;
-                status.classList.add('is-error');
+                applyRunning(syncId, false);
+                setStatus(syncId, state.error, 'error');
 
                 return;
             }
 
             if (state.running) {
-                status.textContent = sprintf(config.i18n.syncProgress, state.processed, state.total);
+                applyRunning(syncId, true);
+                setStatus(syncId, sprintf(config.i18n.syncProgress, state.processed, state.total));
                 pollTimers[syncId] = setTimeout(function () { pollStatus(syncId); }, 3000);
-            } else if (state.total > 0) {
-                status.textContent = config.i18n.syncDone + ' (' + state.processed + '/' + state.total + ')';
+            } else {
+                applyRunning(syncId, false);
+
+                if (state.total > 0) {
+                    setStatus(syncId, config.i18n.syncDone + ' (' + state.processed + '/' + state.total + ')', 'success');
+                }
             }
         });
     }
 
     document.querySelectorAll('.datalumo-sync-start').forEach(function (button) {
         button.addEventListener('click', function () {
+            if (button.disabled) {
+                return;
+            }
+
             var syncId = button.getAttribute('data-sync');
+
+            // Lock the control and show progress straight away, before the
+            // first status poll comes back.
+            applyRunning(syncId, true);
+            setStatus(syncId, config.i18n.syncStarting);
+            clearTimeout(pollTimers[syncId]);
 
             post('datalumo_sync_start', { sync_id: syncId }).then(function () {
                 pollStatus(syncId);

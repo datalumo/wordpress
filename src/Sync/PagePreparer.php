@@ -63,7 +63,7 @@ class PagePreparer
 
         $payload = [
             'external_id' => (string) $post->ID,
-            'name' => get_the_title($post) ?: '(untitled)',
+            'name' => html_entity_decode(get_the_title($post) ?: '(untitled)', ENT_QUOTES | ENT_HTML5, 'UTF-8'),
             'content' => $content,
             'content_mime' => 'text/html',
             'source_url' => get_permalink($post),

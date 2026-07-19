@@ -41,6 +41,7 @@ class SettingsPage
             'i18n' => [
                 'connected' => __('Connected to %s — %d source(s) available.', 'datalumo'),
                 'connectionFailed' => __('Connection failed:', 'datalumo'),
+                'syncStarting' => __('Starting sync…', 'datalumo'),
                 'syncProgress' => __('%1$d of %2$d posts synced…', 'datalumo'),
                 'syncDone' => __('Sync complete.', 'datalumo'),
             ],
