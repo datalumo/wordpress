@@ -2,6 +2,7 @@
 
 namespace Datalumo\Wp\Admin;
 
+use Datalumo\Wp\Support\Assets;
 use Datalumo\Wp\Support\Options;
 
 class SettingsPage
@@ -32,16 +33,18 @@ class SettingsPage
             return;
         }
 
-        wp_enqueue_style('datalumo-admin', DATALUMO_URL . 'resources/css/admin.css', [], DATALUMO_VERSION);
-        wp_enqueue_script('datalumo-admin', DATALUMO_URL . 'resources/js/admin.js', [], DATALUMO_VERSION, ['in_footer' => true]);
+        wp_enqueue_style('datalumo-admin', DATALUMO_URL . 'resources/css/admin.css', [], Assets::version());
+        wp_enqueue_script('datalumo-admin', DATALUMO_URL . 'resources/js/admin.js', [], Assets::version(), ['in_footer' => true]);
 
         wp_localize_script('datalumo-admin', 'datalumoAdmin', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce(Ajax::NONCE),
             'i18n' => [
-                'connected' => __('Connected to %s — %d source(s) available.', 'datalumo'),
+                /* translators: 1: organisation name, 2: number of sources */
+                'connected' => __('Connected to %1$s — %2$d source(s) available.', 'datalumo'),
                 'connectionFailed' => __('Connection failed:', 'datalumo'),
                 'syncStarting' => __('Starting sync…', 'datalumo'),
+                /* translators: 1: number of posts already synced, 2: total posts */
                 'syncProgress' => __('%1$d of %2$d posts synced…', 'datalumo'),
                 'syncDone' => __('Sync complete.', 'datalumo'),
             ],
@@ -50,9 +53,17 @@ class SettingsPage
 
     public function render(): void
     {
-        $tab = isset($_GET['tab']) && in_array($_GET['tab'], self::TABS, true) ? $_GET['tab'] : 'connection';
+        $datalumo_tab = $this->requestedTab();
 
         require DATALUMO_DIR . '/resources/views/settings.php';
+    }
+
+    private function requestedTab(): string
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- settings tab is a navigation query arg.
+        $tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : '';
+
+        return in_array($tab, self::TABS, true) ? $tab : 'connection';
     }
 
     public function save(): void
@@ -63,8 +74,12 @@ class SettingsPage
 
         check_admin_referer(self::NONCE);
 
-        $tab = sanitize_key((string) ($_POST['datalumo_tab'] ?? 'connection'));
         $input = wp_unslash($_POST);
+        $tab = sanitize_key((string) ($input['datalumo_tab'] ?? 'connection'));
+
+        if (! in_array($tab, self::TABS, true)) {
+            $tab = 'connection';
+        }
 
         match ($tab) {
             'content-sync' => $this->saveSyncs($input),
@@ -89,7 +104,12 @@ class SettingsPage
         };
 
         wp_safe_redirect(add_query_arg(
-            ['page' => 'datalumo', 'tab' => $tab, 'updated' => '1'],
+            [
+                'page' => 'datalumo',
+                'tab' => $tab,
+                'updated' => '1',
+                '_wpnonce' => wp_create_nonce('datalumo_settings_updated'),
+            ],
             admin_url('options-general.php'),
         ));
         exit;

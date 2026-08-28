@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.distignore
+.slimm
+.phpunit.cache
+tests
+phpunit.xml
+composer.lock
+build
+*.zip
+.DS_Store

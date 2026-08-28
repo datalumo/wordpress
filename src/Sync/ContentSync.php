@@ -130,8 +130,6 @@ class ContentSync
 
     private function retryLater(string $hook, array $args, ApiException $e): void
     {
-        error_log(sprintf('[Datalumo] %s failed (%d): %s', $hook, $e->status, $e->getMessage()));
-
         // Auth failures and a full plan won't heal on retry — don't reschedule.
         if ($e->isAuthentication() || $e->isQuota() || ! function_exists('as_schedule_single_action')) {
             return;

@@ -1,9 +1,8 @@
 name: Release
 
 # Build a distributable plugin zip and attach it to the GitHub release whenever
-# a version tag is pushed. The Datalumo plugin checks for updates against these
-# release assets (see src/Support/UpdateChecker.php), so the zip must contain the
-# Composer-built vendor/ directory — GitHub's auto-generated source zip does not.
+# a version tag is pushed. The zip must contain the Composer-built vendor/
+# directory — GitHub's auto-generated source archive does not.
 on:
   push:
     tags:
@@ -52,12 +51,14 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude '.gitignore' \
+            --exclude '.distignore' \
             --exclude '.slimm' \
             --exclude 'build' \
             --exclude '*.zip' \
             --exclude 'tests' \
             --exclude 'phpunit.xml' \
-            --exclude '.phpunit.cache'
+            --exclude '.phpunit.cache' \
+            --exclude '.DS_Store'
           (cd build && zip -rq datalumo.zip datalumo)
 
       - name: Create release and upload asset

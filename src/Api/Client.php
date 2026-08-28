@@ -94,7 +94,7 @@ class Client
         $parts = explode('/', trim($key), 2);
 
         if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
-            throw new ApiException(__('Invalid widget key — copy it from the widget editor.', 'datalumo'));
+            throw new ApiException(esc_html__('Invalid widget key — copy it from the widget editor.', 'datalumo'));
         }
 
         return [$parts[0], $parts[1]];
@@ -126,20 +126,24 @@ class Client
         ]);
 
         if (is_wp_error($response)) {
-            throw new ApiException($response->get_error_message());
+            throw new ApiException(esc_html($response->get_error_message()));
         }
 
         $status = (int) wp_remote_retrieve_response_code($response);
         $decoded = json_decode((string) wp_remote_retrieve_body($response), true);
 
         if ($status >= 400) {
-            $message = is_array($decoded) && isset($decoded['message'])
-                ? (string) $decoded['message']
-                : sprintf(__('Datalumo request failed (%d).', 'datalumo'), $status);
+            if (is_array($decoded) && isset($decoded['message'])) {
+                $message = (string) $decoded['message'];
+            } else {
+                /* translators: %d: HTTP status code */
+                $message = sprintf(esc_html__('Datalumo request failed (%d).', 'datalumo'), $status);
+            }
 
             $retryAfter = (int) wp_remote_retrieve_header($response, 'retry-after');
 
-            throw new ApiException($message, $status, $retryAfter > 0 ? $retryAfter : null);
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- exception payload, not rendered output.
+            throw new ApiException(esc_html($message), $status, $retryAfter > 0 ? $retryAfter : null);
         }
 
         return is_array($decoded) ? $decoded : [];
