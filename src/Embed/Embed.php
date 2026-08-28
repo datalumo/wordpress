@@ -130,6 +130,14 @@ class Embed
     {
         $context = [];
 
+        if (function_exists('is_singular') && is_singular()) {
+            $pageId = (int) get_the_ID();
+
+            if ($pageId > 0) {
+                $context['page_id'] = (string) $pageId;
+            }
+        }
+
         if (function_exists('is_product') && is_product()) {
             $id = (int) get_the_ID();
 

@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.0.14
+Stable tag: 0.0.15
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,7 +19,7 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 * **Search box** — drop-in search via the `[datalumo_search]` shortcode.
 * **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
 * **Visitor identity** — logged-in users can continue their chat conversations across visits, verified with a server-side signature.
-* **WooCommerce add to cart**: when WooCommerce is active, a confirmed chat action named `add_to_cart` adds the product to the visitor's cart.
+* **Chat page actions**: the official plugin listens for confirmed chat events (`add_to_cart`, `view_cart`, `open_checkout`, `open_page`, `start_form`). Add those actions in Datalumo under Reply → What it can do.
 
 This plugin is an interface to a [Datalumo](https://datalumo.app) instance. You need a Datalumo account (or a self-hosted instance), an API token, and — for chat or search widgets — a widget key. Nothing is sent until an administrator connects the site and turns a feature on.
 
@@ -70,10 +70,20 @@ Yes. Set the Datalumo URL on the Connection tab before you connect.
 
 = Can the chatbot add products to a WooCommerce cart? =
 
-Yes, if WooCommerce is active. In Datalumo, add an Act on the page action named add_to_cart with a product_id field (the WordPress product id). The visitor confirms in chat. Variable products send colour, then that colour's sizes, as nested choice steps (up to 8 options per step); more than that opens the product page.
+Yes, if WooCommerce is active. In Datalumo, add the WordPress Add to cart action (event add_to_cart, field product_id). The visitor confirms in chat. Variable products send colour, then that colour's sizes, as nested choice steps (up to 8 options per step); more than that opens the product page.
+
+= What other chat actions does the plugin handle? =
+
+View cart and Open checkout (WooCommerce), Open this page (a post or page by id, slug, or same-site URL), and Start a form (scrolls to a form on this page, or opens the page that has it). Add them from Reply → Plugin actions → WordPress.
 
 
 == Changelog ==
+
+= 0.0.15 =
+* Chat: view_cart and open_checkout open the WooCommerce cart or checkout.
+* Chat: open_page opens a published post or page (id, slug, or same-site URL).
+* Chat: start_form scrolls to a form on this page, or opens the page that has it.
+* Product and other singular pages send page_id as chat context.
 
 = 0.0.14 =
 * WooCommerce: colour and size are nested choice steps in one reply, so chat does not hop back to the server after the first pick.

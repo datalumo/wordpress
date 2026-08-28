@@ -54,6 +54,7 @@ class Plugin
         (new Summary())->register();
         (new ClickTracking())->register();
         (new Embed())->register();
+        (new Integration\HostNavigation())->register();
 
         add_action('admin_notices', [$this, 'configurationNotice']);
     }
