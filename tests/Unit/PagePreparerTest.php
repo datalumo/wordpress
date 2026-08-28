@@ -33,6 +33,18 @@ it('decodes HTML entities in the post title', function () {
         ->and($payload['content_mime'])->toBe('text/html');
 });
 
+it('falls back when block rendering fatals', function () {
+    Functions\when('get_the_title')->justReturn('Product');
+    Functions\when('do_blocks')->alias(function (): string {
+        throw new Error('Call to undefined function Automattic\WooCommerce\Blocks\Domain\Services\wc_get_notices()');
+    });
+
+    $post = new WP_Post();
+    $post->post_content = '<p>Ceramic mug</p>';
+
+    expect((new PagePreparer())->prepare($post)['content'])->toBe('<p>Ceramic mug</p>');
+});
+
 it('skips a post with no content', function () {
     Functions\when('get_the_title')->justReturn('Empty');
     Functions\when('wp_strip_all_tags')->justReturn('');
@@ -41,4 +53,20 @@ it('skips a post with no content', function () {
     $post->post_content = '';
 
     expect((new PagePreparer())->prepare($post))->toBeNull();
+});
+
+it('keeps a payload the filter filled after an empty body', function () {
+    Functions\when('get_the_title')->justReturn('Mug');
+    Functions\when('apply_filters')->alias(function (string $hook, mixed $value) {
+        if ($hook === 'datalumo_page_payload' && is_array($value)) {
+            $value['content'] = '<p>A ceramic mug.</p>';
+        }
+
+        return $value;
+    });
+
+    $post = new WP_Post();
+    $post->post_content = '';
+
+    expect((new PagePreparer())->prepare($post)['content'])->toBe('<p>A ceramic mug.</p>');
 });

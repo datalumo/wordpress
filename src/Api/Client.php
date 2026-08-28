@@ -15,15 +15,33 @@ use Datalumo\Wp\Support\Options;
 class Client
 {
     /**
-     * GET /me — connection test + organisation/source discovery. Tokens are
-     * org-scoped, so both id and token are needed to connect.
+     * GET /api/v1/me: connection test and organisation/source discovery.
+     * The token identifies the organisation; $organisationId is optional
+     * for older Datalumo instances that still require it in the path.
      *
      * @param string|null $baseUrl Optional override (e.g. from the settings
      *                             form before it has been saved).
      */
     public function me(string $organisationId, string $token, ?string $baseUrl = null): array
     {
+        if ($organisationId === '') {
+            return $this->request('GET', $this->rootUrl('api/v1/me', $baseUrl), token: $token);
+        }
+
         return $this->request('GET', $this->orgUrl($organisationId, 'me', $baseUrl), token: $token);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function exchangeWordPressGrant(string $code, string $state, ?string $baseUrl = null): array
+    {
+        return $this->request(
+            'POST',
+            $this->rootUrl('api/integrations/wordpress/exchange', $baseUrl),
+            ['code' => $code, 'state' => $state],
+            anonymous: true,
+        );
     }
 
     public function pushPage(string $sourceId, array $payload): array
@@ -70,13 +88,18 @@ class Client
         );
     }
 
-    private function orgUrl(string $organisationId, string $path, ?string $baseUrl = null): string
+    private function rootUrl(string $path, ?string $baseUrl = null): string
     {
         $base = $baseUrl !== null && $baseUrl !== ''
             ? Options::normaliseBaseUrl($baseUrl)
             : Options::baseUrl();
 
-        return $base . '/api/v1/' . rawurlencode($organisationId) . '/' . $path;
+        return $base . '/' . ltrim($path, '/');
+    }
+
+    private function orgUrl(string $organisationId, string $path, ?string $baseUrl = null): string
+    {
+        return $this->rootUrl('api/v1/' . rawurlencode($organisationId) . '/' . $path, $baseUrl);
     }
 
     private function sourceUrl(string $sourceId, string $path): string
@@ -94,13 +117,13 @@ class Client
         $parts = explode('/', trim($key), 2);
 
         if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
-            throw new ApiException(__('Invalid widget key — copy it from the widget editor.', 'datalumo'));
+            throw new ApiException(esc_html__('Invalid widget key — copy it from the widget editor.', 'datalumo'));
         }
 
         return [$parts[0], $parts[1]];
     }
 
-    private function request(string $method, string $url, array $body = [], ?string $token = null, ?string $origin = null): array
+    private function request(string $method, string $url, array $body = [], ?string $token = null, ?string $origin = null, bool $anonymous = false): array
     {
         $headers = [
             'Accept' => 'application/json',
@@ -109,7 +132,7 @@ class Client
 
         if ($origin !== null) {
             $headers['Origin'] = $origin;
-        } else {
+        } elseif (! $anonymous) {
             $token ??= (string) Options::get('api_token');
 
             if ($token !== '') {
@@ -126,20 +149,24 @@ class Client
         ]);
 
         if (is_wp_error($response)) {
-            throw new ApiException($response->get_error_message());
+            throw new ApiException(esc_html($response->get_error_message()));
         }
 
         $status = (int) wp_remote_retrieve_response_code($response);
         $decoded = json_decode((string) wp_remote_retrieve_body($response), true);
 
         if ($status >= 400) {
-            $message = is_array($decoded) && isset($decoded['message'])
-                ? (string) $decoded['message']
-                : sprintf(__('Datalumo request failed (%d).', 'datalumo'), $status);
+            if (is_array($decoded) && isset($decoded['message'])) {
+                $message = (string) $decoded['message'];
+            } else {
+                /* translators: %d: HTTP status code */
+                $message = sprintf(esc_html__('Datalumo request failed (%d).', 'datalumo'), $status);
+            }
 
             $retryAfter = (int) wp_remote_retrieve_header($response, 'retry-after');
 
-            throw new ApiException($message, $status, $retryAfter > 0 ? $retryAfter : null);
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- exception payload, not rendered output.
+            throw new ApiException(esc_html($message), $status, $retryAfter > 0 ? $retryAfter : null);
         }
 
         return is_array($decoded) ? $decoded : [];

@@ -4,6 +4,7 @@ namespace Datalumo\Wp\Admin;
 
 use Datalumo\Wp\Api\ApiException;
 use Datalumo\Wp\Api\Client;
+use Datalumo\Wp\Support\Credentials;
 use Datalumo\Wp\Support\Options;
 use Datalumo\Wp\Sync\BulkSync;
 
@@ -20,10 +21,10 @@ class Ajax
     }
 
     /**
-     * Verify the pasted org id + token against /me; on success cache the
-     * organisation and its sources so the pickers render offline.
+     * Verify a pasted API token against GET /api/v1/me. The token identifies
+     * the organisation; no organisation ID is required.
      *
-     * An empty POST token falls back to the stored one — the password field
+     * An empty POST token falls back to the stored one. The password field
      * renders only a "saved" placeholder, never the secret. The base URL comes
      * from the form field (so an unsaved value works) and is persisted on success.
      */
@@ -31,34 +32,40 @@ class Ajax
     {
         $this->authorise();
 
-        $organisationId = sanitize_text_field((string) ($_POST['organisation_id'] ?? ''));
-        $token = sanitize_text_field((string) ($_POST['token'] ?? ''));
+        // phpcs:disable WordPress.Security.NonceVerification -- verified in authorise().
+        $token = sanitize_text_field(wp_unslash((string) ($_POST['token'] ?? '')));
         $apiUrl = array_key_exists('api_url', $_POST)
-            ? (esc_url_raw((string) wp_unslash($_POST['api_url'])) ?: 'https://datalumo.app')
+            ? (esc_url_raw(wp_unslash((string) $_POST['api_url'])) ?: 'https://datalumo.app')
             : null;
-
-        if ($organisationId === '') {
-            $organisationId = (string) Options::get('organisation.id', '');
-        }
+        // phpcs:enable WordPress.Security.NonceVerification
 
         if ($token === '') {
             $token = (string) Options::get('api_token', '');
         }
 
-        if ($organisationId === '' || $token === '') {
-            wp_send_json_error(['message' => __('Both the organisation ID and an API token are required.', 'datalumo')]);
+        if ($token === '') {
+            wp_send_json_error(['message' => __('An API token is required.', 'datalumo')]);
+        }
+
+        if (Credentials::looksLikeWidgetKey($token)) {
+            wp_send_json_error(['message' => __('That looks like a widget key. Paste an API token from API keys instead.', 'datalumo')]);
+        }
+
+        if (Credentials::looksLikeSecret($token)) {
+            wp_send_json_error(['message' => __('That looks like a widget secret. Paste an API token from API keys instead.', 'datalumo')]);
         }
 
         try {
-            $me = (new Client())->me($organisationId, $token, $apiUrl);
+            $me = (new Client())->me('', $token, $apiUrl);
         } catch (ApiException $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }
 
         $stored = [
             'api_token' => $token,
-            'organisation' => $me['organisation'] ?? ['id' => $organisationId],
+            'organisation' => $me['organisation'] ?? [],
             'sources' => $me['sources'] ?? [],
+            'connected_via' => 'token',
         ];
 
         if ($apiUrl !== null) {
@@ -98,7 +105,8 @@ class Ajax
 
     private function syncId(): string
     {
-        return sanitize_text_field((string) ($_POST['sync_id'] ?? ''));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in authorise().
+        return sanitize_text_field(wp_unslash((string) ($_POST['sync_id'] ?? '')));
     }
 
     private function authorise(): void

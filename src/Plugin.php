@@ -4,6 +4,7 @@ namespace Datalumo\Wp;
 
 use Datalumo\Wp\Admin\Ajax;
 use Datalumo\Wp\Admin\SettingsPage;
+use Datalumo\Wp\Connect\Grant;
 use Datalumo\Wp\Embed\Embed;
 use Datalumo\Wp\Search\ClickTracking;
 use Datalumo\Wp\Search\Interceptor;
@@ -46,6 +47,7 @@ class Plugin
         if (is_admin()) {
             (new SettingsPage())->register();
             (new Ajax())->register();
+            Grant::register();
         }
 
         (new ContentSync())->register();

@@ -36,6 +36,24 @@
 
     // --- Connection tab ---------------------------------------------------
 
+    var modeButtons = document.querySelectorAll('[data-datalumo-mode]');
+    var grantPanel = document.getElementById('datalumo-mode-grant');
+    var manualPanel = document.getElementById('datalumo-mode-manual');
+
+    modeButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            var mode = button.getAttribute('data-datalumo-mode');
+
+            if (grantPanel) {
+                grantPanel.hidden = mode !== 'grant';
+            }
+
+            if (manualPanel) {
+                manualPanel.hidden = mode !== 'manual';
+            }
+        });
+    });
+
     var connectButton = document.getElementById('datalumo-connect');
 
     if (connectButton) {
@@ -46,7 +64,6 @@
             result.textContent = '…';
 
             var payload = {
-                organisation_id: document.getElementById('datalumo-organisation-id').value.trim(),
                 token: document.getElementById('datalumo-token').value.trim(),
             };
 
@@ -59,20 +76,14 @@
             }
 
             post('datalumo_connect', payload).then(function (response) {
-                connectButton.disabled = false;
-
                 if (response.success) {
-                    var organisation = response.data.organisation || {};
-                    result.textContent = sprintf(
-                        config.i18n.connected,
-                        organisation.name || organisation.id || '',
-                        (response.data.sources || []).length
-                    );
-                    result.classList.add('is-success');
-                } else {
-                    result.textContent = config.i18n.connectionFailed + ' ' + ((response.data || {}).message || '');
-                    result.classList.add('is-error');
+                    window.location.reload();
+                    return;
                 }
+
+                connectButton.disabled = false;
+                result.textContent = config.i18n.connectionFailed + ' ' + ((response.data || {}).message || '');
+                result.classList.add('is-error');
             });
         });
     }
@@ -183,4 +194,14 @@
     document.querySelectorAll('.datalumo-sync-status[data-sync]').forEach(function (status) {
         pollStatus(status.getAttribute('data-sync'));
     });
+
+    var autoSync = new URLSearchParams(window.location.search).get('datalumo_sync');
+
+    if (autoSync) {
+        var autoStart = document.querySelector('.datalumo-sync-start[data-sync="' + autoSync + '"]');
+
+        if (autoStart && ! autoStart.disabled) {
+            autoStart.click();
+        }
+    }
 })();
