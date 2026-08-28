@@ -184,6 +184,29 @@
     padding: 0;
 }
 
+.datalumo-self-host {
+    margin-top: 1rem;
+    color: #646970;
+}
+
+.datalumo-self-host summary {
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.datalumo-self-host[open] summary {
+    margin-bottom: 0.5rem;
+}
+
+.datalumo-self-host label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.datalumo-self-host p {
+    margin: 0;
+}
+
 .datalumo-settings-layout {
     display: flex;
     flex-wrap: wrap;

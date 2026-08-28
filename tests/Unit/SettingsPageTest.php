@@ -32,6 +32,14 @@ it('points settings help at the WordPress plugin docs', function () {
         ->and(SettingsPage::ASK_MAX_LENGTH)->toBe(280);
 });
 
+it('hides the self-hosted URL behind a disclosure on connect', function () {
+    $view = (string) file_get_contents(dirname(__DIR__, 2).'/resources/views/settings.php');
+
+    expect($view)->toContain('datalumo-self-host')
+        ->and($view)->toContain("Using a self-hosted Datalumo?")
+        ->and($view)->toContain('datalumo-grant-api-url');
+});
+
 it('hides the settings sidebar until setup is ready', function () {
     $view = (string) file_get_contents(dirname(__DIR__, 2).'/resources/views/settings.php');
 

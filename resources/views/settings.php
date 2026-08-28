@@ -169,14 +169,21 @@ foreach ($datalumo_syncs as $datalumo_sync_row) {
                 <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                     <input type="hidden" name="action" value="<?php echo esc_attr(Grant::ACTION_START); ?>" />
                     <?php wp_nonce_field(Grant::ACTION_START); ?>
-                    <?php if (! defined('DATALUMO_API_URL')) : ?>
-                        <p>
-                            <label for="datalumo-grant-api-url"><?php esc_html_e('Datalumo URL', 'datalumo'); ?></label>
-                            <input type="url" id="datalumo-grant-api-url" name="api_url" class="regular-text"
-                                   value="<?php echo esc_attr(Options::get('api_url', 'https://datalumo.app')); ?>" />
-                        </p>
-                    <?php endif; ?>
                     <?php submit_button(__('Connect with Datalumo', 'datalumo'), 'primary', 'submit', false); ?>
+                    <?php if (! defined('DATALUMO_API_URL')) : ?>
+                        <?php
+                        $datalumo_grant_url = (string) Options::get('api_url', 'https://datalumo.app');
+                        $datalumo_self_hosted = Options::normaliseBaseUrl($datalumo_grant_url) !== 'https://datalumo.app';
+                        ?>
+                        <details class="datalumo-self-host"<?php echo $datalumo_self_hosted ? ' open' : ''; ?>>
+                            <summary><?php esc_html_e('Using a self-hosted Datalumo?', 'datalumo'); ?></summary>
+                            <p>
+                                <label for="datalumo-grant-api-url"><?php esc_html_e('Datalumo URL', 'datalumo'); ?></label>
+                                <input type="url" id="datalumo-grant-api-url" name="api_url" class="regular-text"
+                                       value="<?php echo esc_attr($datalumo_grant_url); ?>" />
+                            </p>
+                        </details>
+                    <?php endif; ?>
                 </form>
                 <p>
                     <button type="button" class="button-link" data-datalumo-mode="manual"><?php esc_html_e('Manual setup', 'datalumo'); ?></button>

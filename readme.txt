@@ -65,7 +65,7 @@ Only after you connect and enable a feature. Content sync sends the published po
 
 = Can I use a self-hosted Datalumo instance? =
 
-Yes. Set the Datalumo URL on the Connection tab before you connect.
+Yes. On the Connection tab, open Using a self-hosted Datalumo? and set the URL before you connect. Manual setup has the same field.
 
 = Can the chatbot add products to a WooCommerce cart? =
 
