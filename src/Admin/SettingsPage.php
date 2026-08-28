@@ -2,14 +2,21 @@
 
 namespace Datalumo\Wp\Admin;
 
+use Datalumo\Wp\Api\ApiException;
+use Datalumo\Wp\Api\Client;
 use Datalumo\Wp\Support\Assets;
+use Datalumo\Wp\Support\Credentials;
 use Datalumo\Wp\Support\Options;
 
 class SettingsPage
 {
     public const NONCE = 'datalumo_settings';
 
+    public const ASK_MAX_LENGTH = 280;
+
     private const TABS = ['connection', 'content-sync', 'chatbot', 'search-box', 'enhanced-search'];
+
+    private bool $widgetKeyRejected = false;
 
     public function register(): void
     {
@@ -55,13 +62,67 @@ class SettingsPage
     {
         $datalumo_tab = $this->requestedTab();
 
+        if ($datalumo_tab === 'content-sync') {
+            $this->refreshSources();
+        }
+
         require DATALUMO_DIR . '/resources/views/settings.php';
+    }
+
+    /**
+     * Other tabs are empty until a connection exists and the post-connect
+     * checklist (if any) has been saved.
+     */
+    public static function setupIsReady(): bool
+    {
+        return Options::isConnected() && ! Options::get('setup_pending');
+    }
+
+    public static function docsUrl(string $hash = ''): string
+    {
+        $url = Options::baseUrl().'/docs/wordpress';
+
+        return $hash !== '' ? $url.'#'.$hash : $url;
+    }
+
+    /**
+     * Landing page for the settings "Need help?" form. Query `ask` is
+     * honoured on first-party docs only, as a composer prefill.
+     */
+    public static function helpUrl(): string
+    {
+        return self::docsUrl();
+    }
+
+    /**
+     * Pull a fresh source list (including knowledge base names) so the
+     * picker stays current after a connect or a rename in Datalumo.
+     */
+    private function refreshSources(): void
+    {
+        if (! Options::isConnected()) {
+            return;
+        }
+
+        try {
+            $me = (new Client())->me('', (string) Options::get('api_token'));
+        } catch (ApiException) {
+            return;
+        }
+
+        if (isset($me['sources']) && is_array($me['sources'])) {
+            Options::set('sources', $me['sources']);
+        }
     }
 
     private function requestedTab(): string
     {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- settings tab is a navigation query arg.
         $tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : '';
+
+        if (! self::setupIsReady()) {
+            return 'connection';
+        }
 
         return in_array($tab, self::TABS, true) ? $tab : 'connection';
     }
@@ -85,16 +146,16 @@ class SettingsPage
             'content-sync' => $this->saveSyncs($input),
             'chatbot' => Options::merge(['chatbot' => [
                 'enabled' => ! empty($input['chatbot_enabled']),
-                'widget_key' => sanitize_text_field((string) ($input['chatbot_widget_key'] ?? '')),
+                'widget_key' => $this->sanitizeWidgetKey((string) ($input['chatbot_widget_key'] ?? ''), (string) Options::get('chatbot.widget_key', '')),
                 'identity_enabled' => ! empty($input['chatbot_identity_enabled']),
-                'signing_secret' => sanitize_text_field((string) ($input['chatbot_signing_secret'] ?? '')),
+                'signing_secret' => $this->sanitizeSigningSecret((string) ($input['chatbot_signing_secret'] ?? '')),
             ]]),
             'search-box' => Options::merge(['search_box' => [
-                'widget_key' => sanitize_text_field((string) ($input['search_box_widget_key'] ?? '')),
+                'widget_key' => $this->sanitizeWidgetKey((string) ($input['search_box_widget_key'] ?? ''), (string) Options::get('search_box.widget_key', '')),
             ]]),
             'enhanced-search' => Options::merge(['enhanced' => [
                 'enabled' => ! empty($input['enhanced_enabled']),
-                'widget_key' => sanitize_text_field((string) ($input['enhanced_widget_key'] ?? '')),
+                'widget_key' => $this->sanitizeWidgetKey((string) ($input['enhanced_widget_key'] ?? ''), (string) Options::get('enhanced.widget_key', '')),
                 'post_types' => array_map('sanitize_key', (array) ($input['enhanced_post_types'] ?? [])),
                 'summary_enabled' => ! empty($input['enhanced_summary_enabled']),
                 'summary_selector' => sanitize_text_field((string) ($input['enhanced_summary_selector'] ?? '')),
@@ -103,15 +164,20 @@ class SettingsPage
             default => $this->saveConnection($input),
         };
 
-        wp_safe_redirect(add_query_arg(
-            [
-                'page' => 'datalumo',
-                'tab' => $tab,
-                'updated' => '1',
-                '_wpnonce' => wp_create_nonce('datalumo_settings_updated'),
-            ],
-            admin_url('options-general.php'),
-        ));
+        $args = [
+            'page' => 'datalumo',
+            'tab' => $tab,
+            '_wpnonce' => wp_create_nonce('datalumo_settings_updated'),
+        ];
+
+        if ($this->widgetKeyRejected) {
+            $args['datalumo_notice'] = 'invalid_widget_key';
+        } else {
+            // options-head.php prints "Settings saved." when updated=1 on a Settings screen.
+            $args['updated'] = '1';
+        }
+
+        wp_safe_redirect(add_query_arg($args, admin_url('options-general.php')));
         exit;
     }
 
@@ -163,5 +229,25 @@ class SettingsPage
         }
 
         Options::set('syncs', $syncs);
+    }
+
+    private function sanitizeWidgetKey(string $value, string $current = ''): string
+    {
+        $value = sanitize_text_field($value);
+
+        if ($value === '' || Credentials::looksLikeWidgetKey($value)) {
+            return $value;
+        }
+
+        $this->widgetKeyRejected = true;
+
+        return $current;
+    }
+
+    private function sanitizeSigningSecret(string $value): string
+    {
+        $value = sanitize_text_field($value);
+
+        return $value !== '' ? $value : (string) Options::get('chatbot.signing_secret', '');
     }
 }

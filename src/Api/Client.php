@@ -15,15 +15,33 @@ use Datalumo\Wp\Support\Options;
 class Client
 {
     /**
-     * GET /me — connection test + organisation/source discovery. Tokens are
-     * org-scoped, so both id and token are needed to connect.
+     * GET /api/v1/me: connection test and organisation/source discovery.
+     * The token identifies the organisation; $organisationId is optional
+     * for older Datalumo instances that still require it in the path.
      *
      * @param string|null $baseUrl Optional override (e.g. from the settings
      *                             form before it has been saved).
      */
     public function me(string $organisationId, string $token, ?string $baseUrl = null): array
     {
+        if ($organisationId === '') {
+            return $this->request('GET', $this->rootUrl('api/v1/me', $baseUrl), token: $token);
+        }
+
         return $this->request('GET', $this->orgUrl($organisationId, 'me', $baseUrl), token: $token);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function exchangeWordPressGrant(string $code, string $state, ?string $baseUrl = null): array
+    {
+        return $this->request(
+            'POST',
+            $this->rootUrl('api/integrations/wordpress/exchange', $baseUrl),
+            ['code' => $code, 'state' => $state],
+            anonymous: true,
+        );
     }
 
     public function pushPage(string $sourceId, array $payload): array
@@ -70,13 +88,18 @@ class Client
         );
     }
 
-    private function orgUrl(string $organisationId, string $path, ?string $baseUrl = null): string
+    private function rootUrl(string $path, ?string $baseUrl = null): string
     {
         $base = $baseUrl !== null && $baseUrl !== ''
             ? Options::normaliseBaseUrl($baseUrl)
             : Options::baseUrl();
 
-        return $base . '/api/v1/' . rawurlencode($organisationId) . '/' . $path;
+        return $base . '/' . ltrim($path, '/');
+    }
+
+    private function orgUrl(string $organisationId, string $path, ?string $baseUrl = null): string
+    {
+        return $this->rootUrl('api/v1/' . rawurlencode($organisationId) . '/' . $path, $baseUrl);
     }
 
     private function sourceUrl(string $sourceId, string $path): string
@@ -100,7 +123,7 @@ class Client
         return [$parts[0], $parts[1]];
     }
 
-    private function request(string $method, string $url, array $body = [], ?string $token = null, ?string $origin = null): array
+    private function request(string $method, string $url, array $body = [], ?string $token = null, ?string $origin = null, bool $anonymous = false): array
     {
         $headers = [
             'Accept' => 'application/json',
@@ -109,7 +132,7 @@ class Client
 
         if ($origin !== null) {
             $headers['Origin'] = $origin;
-        } else {
+        } elseif (! $anonymous) {
             $token ??= (string) Options::get('api_token');
 
             if ($token !== '') {

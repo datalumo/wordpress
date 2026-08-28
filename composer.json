@@ -35,6 +35,8 @@
         "brain/monkey": "^2.7"
     },
     "scripts": {
-        "test": "pest"
+        "test": "pest",
+        "fresh-site": "bin/fresh-site",
+        "post-autoload-dump": "@php bin/ensure-index-php"
     }
 }
