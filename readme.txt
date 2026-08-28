@@ -1,10 +1,10 @@
 === Datalumo ===
-Contributors: jeffreyvanrossum
+Contributors: datalumo, jeffreyvr
 Tags: search, ai, chatbot, rag
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.0.7
+Stable tag: 0.0.14
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,32 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 * **Search box** — drop-in search via the `[datalumo_search]` shortcode.
 * **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
 * **Visitor identity** — logged-in users can continue their chat conversations across visits, verified with a server-side signature.
+* **WooCommerce add to cart**: when WooCommerce is active, a confirmed chat action named `add_to_cart` adds the product to the visitor's cart.
+
+This plugin is an interface to a [Datalumo](https://datalumo.app) instance. You need a Datalumo account (or a self-hosted instance), an API token, and — for chat or search widgets — a widget key. Nothing is sent until an administrator connects the site and turns a feature on.
+
+= External services =
+
+The plugin talks to the Datalumo instance you configure. The default host is `https://datalumo.app`; you can point it at your own instance instead.
+
+* Service: [https://datalumo.app](https://datalumo.app)
+* Documentation: [https://datalumo.app/docs](https://datalumo.app/docs)
+* Terms of Service: [https://datalumo.app/terms](https://datalumo.app/terms)
+* Privacy Policy: [https://datalumo.app/privacy](https://datalumo.app/privacy)
+
+When a feature is enabled, the plugin may:
+
+* Load the widget script from `{your Datalumo URL}/widget/v1/datalumo.js` (chat, search box, AI summary, and click tracking).
+* Send published post content to the Datalumo API so it can be indexed (title, HTML, permalink, author display name, categories, tags, dates, and any custom field mappings you add).
+* Send visitor search queries to Datalumo when enhanced search is on.
+* Send result-click events (URL, rank, search session) when enhanced search is on.
+* Send a signed visitor id (`wp-user-{id}` HMAC) when visitor identity is enabled on the Chatbot tab.
+
+= Development =
+
+Source code: [https://github.com/datalumo/wordpress](https://github.com/datalumo/wordpress)
+
+Production dependencies are installed with `composer install --no-dev`.
 
 == Installation ==
 
@@ -28,7 +54,47 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 4. Pick which post types sync to which source, and run the first full sync.
 5. Add a widget key to enable the chat, search box, or enhanced search.
 
+== Frequently Asked Questions ==
+
+= Do I need a Datalumo account? =
+
+Yes. The plugin does not search or chat on its own. It connects WordPress to a Datalumo instance — the hosted service at datalumo.app or one you run yourself.
+
+= What data is sent to Datalumo? =
+
+Only after you connect and enable a feature. Content sync sends the published posts you choose. Enhanced search sends visitor queries and optional result-click analytics. The chat and search widgets load Datalumo's script and talk to that instance. Visitor identity is off unless you turn it on.
+
+= Can I use a self-hosted Datalumo instance? =
+
+Yes. Set the Datalumo URL on the Connection tab before you connect.
+
+= Can the chatbot add products to a WooCommerce cart? =
+
+Yes, if WooCommerce is active. In Datalumo, add an Act on the page action named add_to_cart with a product_id field (the WordPress product id). The visitor confirms in chat. Variable products send colour, then that colour's sizes, as nested choice steps (up to 8 options per step); more than that opens the product page.
+
+
 == Changelog ==
+
+= 0.0.14 =
+* WooCommerce: colour and size are nested choice steps in one reply, so chat does not hop back to the server after the first pick.
+
+= 0.0.13 =
+* WooCommerce: variable products ask for colour, then size, then add the matching variation.
+
+= 0.0.12 =
+* WooCommerce: add-to-cart sends the variation's size and colour attributes, not only the variation id.
+
+= 0.0.11 =
+* Chat on a product page now sends that product id as page context, and add-to-cart uses the current product when the payload has no id.
+
+= 0.0.10 =
+* WooCommerce: a variable product asks the visitor to pick a variation in chat (up to 8). More than that links to the product page.
+
+= 0.0.9 =
+* WooCommerce: settle an add-to-cart chip through respond() only, so the success line is not stamped on an older message.
+
+= 0.0.8 =
+* WooCommerce: a confirmed chat action named add_to_cart adds the product to the visitor's cart.
 
 = 0.0.7 =
 * Full sync: when the push completes, the plugin now tells Datalumo to start indexing right away instead of waiting for its next background sweep. Best-effort — older Datalumo versions without the endpoint are unaffected.
@@ -57,5 +123,5 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 = 0.0.1 =
 * Initial public release.
 * Content sync, chat/search widgets, enhanced search, and visitor identity.
-* GitHub auto-updates via Plugin Update Checker.
+* GitHub auto-updates via Plugin Update Checker (removed ahead of the WordPress.org release).
 * Dutch and Chinese translations.

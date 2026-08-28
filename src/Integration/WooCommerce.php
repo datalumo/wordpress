@@ -6,8 +6,9 @@ use WP_Query;
 
 /**
  * WooCommerce search behaviour on the interceptor's hooks: catalog sorts,
- * hidden-product exclusion, and the price-filter widget. Registered only
- * when WooCommerce is active.
+ * hidden-product exclusion, and the price-filter widget. Also registers
+ * add-to-cart for Datalumo host actions. Registered only when WooCommerce
+ * is active.
  */
 class WooCommerce
 {
@@ -20,6 +21,8 @@ class WooCommerce
     {
         add_filter('datalumo_sort_map', [$this, 'sortMap']);
         add_filter('datalumo_resolve_args', [$this, 'resolveArgs'], 10, 2);
+
+        (new AddToCart())->register();
     }
 
     /**
@@ -90,8 +93,13 @@ class WooCommerce
      */
     private function applyPriceFilter(array $args): array
     {
-        $min = isset($_GET['min_price']) && is_numeric($_GET['min_price']) ? (float) $_GET['min_price'] : null;
-        $max = isset($_GET['max_price']) && is_numeric($_GET['max_price']) ? (float) $_GET['max_price'] : null;
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- public WooCommerce price-filter query args.
+        $minRaw = isset($_GET['min_price']) ? sanitize_text_field(wp_unslash($_GET['min_price'])) : '';
+        $maxRaw = isset($_GET['max_price']) ? sanitize_text_field(wp_unslash($_GET['max_price'])) : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+        $min = $minRaw !== '' && is_numeric($minRaw) ? (float) $minRaw : null;
+        $max = $maxRaw !== '' && is_numeric($maxRaw) ? (float) $maxRaw : null;
 
         if ($min === null && $max === null) {
             return $args;
@@ -106,6 +114,7 @@ class WooCommerce
         }
 
         $existing = $args['meta_query'] ?? [];
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- WooCommerce price filter on the result pool.
         $args['meta_query'] = $existing ? ['relation' => 'AND', $existing, $clause] : [$clause];
 
         return $args;

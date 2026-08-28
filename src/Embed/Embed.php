@@ -33,7 +33,7 @@ class Embed
             self::SCRIPT_HANDLE,
             Options::baseUrl() . '/widget/v1/datalumo.js',
             [],
-            null,
+            DATALUMO_VERSION,
             ['in_footer' => true],
         );
     }
@@ -105,9 +105,58 @@ class Embed
      */
     private function overrides(): array
     {
+        $overrides = [];
         $user = $this->identity();
+        $context = $this->pageContext();
 
-        return $user !== null ? ['user' => $user] : [];
+        if ($user !== null) {
+            $overrides['user'] = $user;
+        }
+
+        if ($context !== []) {
+            $overrides['context'] = $context;
+        }
+
+        return $overrides;
+    }
+
+    /**
+     * Product page hints for chat. Merged with the widget's automatic
+     * page_url / page_title so "this product" has a real id to copy.
+     *
+     * @return array<string, string>
+     */
+    public function pageContext(): array
+    {
+        $context = [];
+
+        if (function_exists('is_product') && is_product()) {
+            $id = (int) get_the_ID();
+
+            if ($id > 0) {
+                $context['product_id'] = (string) $id;
+            }
+
+            if ($id > 0 && function_exists('wc_get_product')) {
+                $product = wc_get_product($id);
+
+                if ($product && method_exists($product, 'get_sku')) {
+                    $sku = trim((string) $product->get_sku());
+
+                    if ($sku !== '') {
+                        $context['sku'] = $sku;
+                    }
+                }
+            }
+        }
+
+        if (function_exists('apply_filters')) {
+            $filtered = apply_filters('datalumo_chat_context', $context);
+
+            return is_array($filtered) ? $filtered : $context;
+        }
+
+        return $context;
     }
 
     /**
