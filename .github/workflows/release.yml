@@ -56,6 +56,7 @@ jobs:
             --exclude 'build' \
             --exclude '*.zip' \
             --exclude 'tests' \
+            --exclude 'bin' \
             --exclude 'phpunit.xml' \
             --exclude '.phpunit.cache' \
             --exclude '.DS_Store'

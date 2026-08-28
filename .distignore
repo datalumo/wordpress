@@ -5,6 +5,7 @@
 .slimm
 .phpunit.cache
 tests
+bin
 phpunit.xml
 composer.lock
 build
