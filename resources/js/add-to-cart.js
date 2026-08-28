@@ -117,6 +117,7 @@
             detail: {
                 answer_id: detail.answer_id,
                 tool_id: detail.tool_id,
+                run: detail.run,
                 ok: result.ok !== false,
                 message: result.message || '',
             },
