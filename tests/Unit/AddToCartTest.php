@@ -10,7 +10,7 @@ if (! defined('DATALUMO_URL')) {
 }
 
 if (! defined('DATALUMO_VERSION')) {
-    define('DATALUMO_VERSION', '0.0.7');
+    define('DATALUMO_VERSION', '0.0.8');
 }
 
 it('registers the ajax handlers and script hook', function () {

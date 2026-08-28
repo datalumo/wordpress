@@ -2,6 +2,8 @@
 
 namespace Datalumo\Wp\Integration;
 
+use Datalumo\Wp\Support\Assets;
+
 /**
  * Listens for a Datalumo host action named add_to_cart and adds the
  * product to the visitor's WooCommerce cart (their browser session).
@@ -29,7 +31,7 @@ class AddToCart
             'datalumo-add-to-cart',
             DATALUMO_URL . 'resources/js/add-to-cart.js',
             [],
-            DATALUMO_VERSION,
+            Assets::version(),
             ['in_footer' => true],
         );
 

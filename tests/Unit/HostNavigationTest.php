@@ -9,7 +9,7 @@ if (! defined('DATALUMO_URL')) {
 }
 
 if (! defined('DATALUMO_VERSION')) {
-    define('DATALUMO_VERSION', '0.0.15');
+    define('DATALUMO_VERSION', '0.0.8');
 }
 
 function hostNav(): HostNavigation
@@ -73,24 +73,6 @@ it('opens a page by slug', function () {
     expect(hostNav()->publishedUrlFromPayload(['slug' => 'contact']))->toBe('https://shop.test/contact/');
 });
 
-it('appends a form hint when opening another page for start_form', function () {
-    Functions\when('get_post')->justReturn((object) ['ID' => 9, 'post_status' => 'publish']);
-    Functions\when('get_permalink')->justReturn('https://shop.test/contact/');
-
-    expect(hostNav()->resolveUrl('start_form', [
-        'page_id' => '9',
-        'form_id' => 'contact',
-    ]))->toBe('https://shop.test/contact/?datalumo_form=contact');
+it('ignores start_form', function () {
+    expect(hostNav()->resolveUrl('start_form', ['page_id' => '9']))->toBeNull();
 });
-
-it('only allows simple selectors', function (string $selector, string $expected) {
-    expect(hostNav()->sanitizeSelector($selector))->toBe($expected);
-})->with([
-    'id' => ['#contact', '#contact'],
-    'bare id' => ['contact', 'contact'],
-    'class' => ['.wpcf7-form', '.wpcf7-form'],
-    'tag and class' => ['form.wpcf7-form', 'form.wpcf7-form'],
-    'attribute' => ['form[action*="evil"]', ''],
-    'wildcard' => ['*', ''],
-    'js proto' => ['javascript:alert(1)', ''],
-]);

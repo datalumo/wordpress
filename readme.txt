@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.0.15
+Stable tag: 0.0.8
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,7 +19,7 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 * **Search box** — drop-in search via the `[datalumo_search]` shortcode.
 * **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
 * **Visitor identity** — logged-in users can continue their chat conversations across visits, verified with a server-side signature.
-* **Chat page actions**: the official plugin listens for confirmed chat events (`add_to_cart`, `view_cart`, `open_checkout`, `open_page`, `start_form`). Add those actions in Datalumo under Reply → What it can do.
+* **Chat page actions**: the official plugin listens for confirmed chat events (`add_to_cart`, `view_cart`, `open_checkout`, `open_page`). Add those actions in Datalumo under Reply → What it can do.
 
 This plugin is an interface to a [Datalumo](https://datalumo.app) instance. You need a Datalumo account (or a self-hosted instance), an API token, and — for chat or search widgets — a widget key. Nothing is sent until an administrator connects the site and turns a feature on.
 
@@ -74,37 +74,14 @@ Yes, if WooCommerce is active. In Datalumo, add the WordPress Add to cart action
 
 = What other chat actions does the plugin handle? =
 
-View cart and Open checkout (WooCommerce), Open this page (a post or page by id, slug, or same-site URL), and Start a form (scrolls to a form on this page, or opens the page that has it). Add them from Reply → Plugin actions → WordPress.
+View cart and Open checkout (WooCommerce), and Open this page (a post or page by id, slug, or same-site URL). Add them from Reply → Plugin actions → WordPress.
 
 
 == Changelog ==
 
-= 0.0.15 =
-* Chat: view_cart and open_checkout open the WooCommerce cart or checkout.
-* Chat: open_page opens a published post or page (id, slug, or same-site URL).
-* Chat: start_form scrolls to a form on this page, or opens the page that has it.
-* Product and other singular pages send page_id as chat context.
-
-= 0.0.14 =
-* WooCommerce: colour and size are nested choice steps in one reply, so chat does not hop back to the server after the first pick.
-
-= 0.0.13 =
-* WooCommerce: variable products ask for colour, then size, then add the matching variation.
-
-= 0.0.12 =
-* WooCommerce: add-to-cart sends the variation's size and colour attributes, not only the variation id.
-
-= 0.0.11 =
-* Chat on a product page now sends that product id as page context, and add-to-cart uses the current product when the payload has no id.
-
-= 0.0.10 =
-* WooCommerce: a variable product asks the visitor to pick a variation in chat (up to 8). More than that links to the product page.
-
-= 0.0.9 =
-* WooCommerce: settle an add-to-cart chip through respond() only, so the success line is not stamped on an older message.
-
 = 0.0.8 =
-* WooCommerce: a confirmed chat action named add_to_cart adds the product to the visitor's cart.
+* Chat page actions: add_to_cart (WooCommerce, including variable products with nested colour/size choices), view_cart, open_checkout, and open_page.
+* Product and other singular pages send page_id (and product_id on products) as chat context.
 
 = 0.0.7 =
 * Full sync: when the push completes, the plugin now tells Datalumo to start indexing right away instead of waiting for its next background sweep. Best-effort — older Datalumo versions without the endpoint are unaffected.

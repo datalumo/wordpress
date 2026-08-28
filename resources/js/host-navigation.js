@@ -1,6 +1,6 @@
 /**
- * Handles Datalumo host actions that open a page: cart, checkout, a
- * WordPress post, or a form on this page (or another page).
+ * Handles Datalumo host actions that open a page: cart, checkout, or a
+ * WordPress post.
  */
 (function () {
     'use strict';
@@ -11,7 +11,7 @@
         return;
     }
 
-    var events = config.events || ['view_cart', 'open_checkout', 'open_page', 'start_form'];
+    var events = config.events || ['view_cart', 'open_checkout', 'open_page'];
 
     window.addEventListener('datalumo:action', function (event) {
         var detail = event.detail || {};
@@ -36,21 +36,8 @@
             return;
         }
 
-        if (detail.name === 'start_form') {
-            var form = findForm(payload);
-
-            if (form) {
-                scrollToForm(form);
-                finish(detail, { ok: true, message: '' });
-
-                return;
-            }
-        }
-
         resolveThenGo(detail, payload);
     });
-
-    bootPendingForm();
 
     function resolveThenGo(detail, payload) {
         var body = new FormData();
@@ -111,103 +98,6 @@
 
         finish(detail, { ok: true, message: '' });
         window.location.assign(url);
-    }
-
-    function findForm(payload) {
-        var selector = sanitizeSelector(payload.selector);
-        var el;
-
-        if (selector) {
-            el = document.querySelector(selector);
-
-            if (el) {
-                return el;
-            }
-        }
-
-        var id = String(payload.form_id || '').replace(/[^\w-]/g, '');
-
-        if (id) {
-            el = firstMatch([
-                '#' + id,
-                '#wpcf7-f' + id,
-                '#wpforms-' + id,
-                '#gform_' + id,
-                '#gform_wrapper_' + id,
-            ]);
-
-            if (el) {
-                return el;
-            }
-        }
-
-        return document.querySelector(
-            'form.wpcf7-form, form.wpforms-form, .gform_wrapper form, form:not([role="search"]):not(.search-form):not(.woocommerce-cart-form):not(.woocommerce-checkout)',
-        );
-    }
-
-    function firstMatch(selectors) {
-        var i;
-        var el;
-
-        for (i = 0; i < selectors.length; i++) {
-            el = document.querySelector(selectors[i]);
-
-            if (el) {
-                return el;
-            }
-        }
-
-        return null;
-    }
-
-    function sanitizeSelector(value) {
-        var selector = String(value || '').trim();
-
-        if (selector === '') {
-            return '';
-        }
-
-        if (/^#?[A-Za-z][\w-]*$/.test(selector)) {
-            return selector.charAt(0) === '#' ? selector : '#' + selector;
-        }
-
-        if (/^\.[A-Za-z][\w-]*$/.test(selector)) {
-            return selector;
-        }
-
-        if (/^[A-Za-z][\w-]*(\.[A-Za-z][\w-]*)?(#[A-Za-z][\w-]*)?$/.test(selector)) {
-            return selector;
-        }
-
-        return '';
-    }
-
-    function scrollToForm(el) {
-        if (typeof el.scrollIntoView === 'function') {
-            el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        }
-
-        var focusable = el.matches && el.matches('input, textarea, select')
-            ? el
-            : el.querySelector('input:not([type="hidden"]), textarea, select');
-
-        if (focusable && typeof focusable.focus === 'function') {
-            focusable.focus({ preventScroll: true });
-        }
-    }
-
-    function bootPendingForm() {
-        var params = new URLSearchParams(window.location.search);
-        var pending = params.get('datalumo_form') || '';
-        var hash = (window.location.hash || '').replace(/^#/, '');
-        var form = findForm({
-            form_id: pending || (hash && hash !== 'datalumo-form' ? hash : ''),
-        });
-
-        if (form && (pending || hash === 'datalumo-form' || hash)) {
-            scrollToForm(form);
-        }
     }
 
     function isSameSite(url) {

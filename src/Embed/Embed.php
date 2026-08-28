@@ -2,6 +2,7 @@
 
 namespace Datalumo\Wp\Embed;
 
+use Datalumo\Wp\Support\Assets;
 use Datalumo\Wp\Support\Options;
 
 /**
@@ -33,7 +34,7 @@ class Embed
             self::SCRIPT_HANDLE,
             Options::baseUrl() . '/widget/v1/datalumo.js',
             [],
-            DATALUMO_VERSION,
+            Assets::version(),
             ['in_footer' => true],
         );
     }

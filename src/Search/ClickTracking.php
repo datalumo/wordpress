@@ -3,6 +3,7 @@
 namespace Datalumo\Wp\Search;
 
 use Datalumo\Wp\Embed\Embed;
+use Datalumo\Wp\Support\Assets;
 use Datalumo\Wp\Support\Options;
 
 /**
@@ -51,7 +52,7 @@ class ClickTracking
             'datalumo-clicks',
             DATALUMO_URL . 'resources/js/click-tracking.js',
             [Embed::SCRIPT_HANDLE],
-            DATALUMO_VERSION,
+            Assets::version(),
             ['in_footer' => true],
         );
 

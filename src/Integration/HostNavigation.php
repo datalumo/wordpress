@@ -2,9 +2,11 @@
 
 namespace Datalumo\Wp\Integration;
 
+use Datalumo\Wp\Support\Assets;
+
 /**
  * Listens for Datalumo host actions that open a page: the cart, checkout,
- * a WordPress post, or a form on the current (or another) page.
+ * or a WordPress post.
  */
 class HostNavigation
 {
@@ -12,7 +14,7 @@ class HostNavigation
 
     public const NONCE = 'datalumo_host_navigation';
 
-    public const EVENTS = ['view_cart', 'open_checkout', 'open_page', 'start_form'];
+    public const EVENTS = ['view_cart', 'open_checkout', 'open_page'];
 
     public function register(): void
     {
@@ -27,7 +29,7 @@ class HostNavigation
             'datalumo-host-navigation',
             DATALUMO_URL . 'resources/js/host-navigation.js',
             [],
-            DATALUMO_VERSION,
+            Assets::version(),
             ['in_footer' => true],
         );
 
@@ -41,7 +43,6 @@ class HostNavigation
             'i18n' => [
                 'failed' => __('Could not open that page.', 'datalumo'),
                 'no_page' => __('No page was specified.', 'datalumo'),
-                'no_form' => __('No form was found on this page.', 'datalumo'),
                 'no_cart' => __('The cart is not available.', 'datalumo'),
                 'no_checkout' => __('Checkout is not available.', 'datalumo'),
             ],
@@ -55,18 +56,14 @@ class HostNavigation
         $payload = $this->requestPayload();
         $event = sanitize_key((string) ($payload['event'] ?? ''));
 
-        if (! in_array($event, ['open_page', 'start_form'], true)) {
+        if ($event !== 'open_page') {
             wp_send_json_error(['message' => __('Unknown action.', 'datalumo')], 400);
         }
 
         $url = $this->resolveUrl($event, $payload);
 
         if ($url === null) {
-            wp_send_json_error([
-                'message' => $event === 'start_form'
-                    ? __('No form was found on this page.', 'datalumo')
-                    : __('No page was specified.', 'datalumo'),
-            ], 422);
+            wp_send_json_error(['message' => __('No page was specified.', 'datalumo')], 422);
         }
 
         wp_send_json_success(['url' => $url]);
@@ -85,17 +82,11 @@ class HostNavigation
             return $this->checkoutUrl() ?: null;
         }
 
-        $url = $this->publishedUrlFromPayload($payload);
-
-        if ($url === null) {
-            return null;
+        if ($event === 'open_page') {
+            return $this->publishedUrlFromPayload($payload);
         }
 
-        if ($event === 'start_form') {
-            return $this->withFormHint($url, $payload);
-        }
-
-        return $url;
+        return null;
     }
 
     /**
@@ -156,29 +147,6 @@ class HostNavigation
         return $host === $home || $host === 'www.' . $home || 'www.' . $host === $home;
     }
 
-    public function sanitizeSelector(string $selector): string
-    {
-        $selector = trim($selector);
-
-        if ($selector === '') {
-            return '';
-        }
-
-        if (preg_match('/^#?[A-Za-z][\w-]*$/', $selector) === 1) {
-            return $selector;
-        }
-
-        if (preg_match('/^\.[A-Za-z][\w-]*$/', $selector) === 1) {
-            return $selector;
-        }
-
-        if (preg_match('/^[A-Za-z][\w-]*(\.[A-Za-z][\w-]*)?(#[A-Za-z][\w-]*)?$/', $selector) === 1) {
-            return $selector;
-        }
-
-        return '';
-    }
-
     public function cartUrl(): string
     {
         if (! function_exists('wc_get_cart_url')) {
@@ -235,29 +203,6 @@ class HostNavigation
         }
 
         return null;
-    }
-
-    /**
-     * @param  array<string, mixed>  $payload
-     */
-    private function withFormHint(string $url, array $payload): string
-    {
-        $formId = preg_replace('/[^\w-]/', '', (string) ($payload['form_id'] ?? '')) ?? '';
-
-        if ($formId === '') {
-            return $this->appendHash($url, 'datalumo-form');
-        }
-
-        $separator = str_contains($url, '?') ? '&' : '?';
-
-        return $url . $separator . 'datalumo_form=' . rawurlencode($formId);
-    }
-
-    private function appendHash(string $url, string $hash): string
-    {
-        $base = preg_replace('/#.*$/', '', $url) ?? $url;
-
-        return $base . '#' . $hash;
     }
 
     /**
