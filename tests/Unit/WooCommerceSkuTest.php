@@ -10,8 +10,9 @@ function wcProduct(
     string $shortDescription = '',
     array $attributes = [],
     int $id = 1,
+    int $imageId = 0,
 ): object {
-    return new class($sku, $type, $children, $shortDescription, $attributes, $id)
+    return new class($sku, $type, $children, $shortDescription, $attributes, $id, $imageId)
     {
         public function __construct(
             private string $sku,
@@ -20,6 +21,7 @@ function wcProduct(
             private string $shortDescription,
             private array $attributes,
             private int $id,
+            private int $imageId,
         ) {}
 
         public function get_id(): int
@@ -50,6 +52,11 @@ function wcProduct(
         public function get_children(): array
         {
             return $this->children;
+        }
+
+        public function get_image_id(): int
+        {
+            return $this->imageId;
         }
     };
 }
@@ -227,4 +234,54 @@ it('adds visible attributes and skips hidden ones', function () {
     expect($payload['meta']['attributes'])->toBe(['Color' => ['Blue', 'Red']])
         ->and($payload['content'])->toContain('Color: Blue, Red')
         ->and($payload['content'])->not->toContain('Internal');
+});
+
+it('adds a product image when the thumbnail is null', function () {
+    Functions\when('wc_get_product')->justReturn(wcProduct(sku: 'MUG-1', imageId: 44));
+    Functions\when('wp_get_attachment_image_url')->justReturn('http://shop.example/mug-large.jpg');
+
+    $post = new WP_Post();
+    $post->ID = 4;
+    $post->post_type = 'product';
+
+    $payload = (new WooCommerce())->enrichProduct([
+        'content' => '<p>A mug.</p>',
+        'meta' => ['post_type' => 'product'],
+        'thumbnail' => null,
+    ], $post);
+
+    expect($payload['thumbnail'])->toBe('https://shop.example/mug-large.jpg');
+});
+
+it('adds a product image when the payload has no thumbnail', function () {
+    Functions\when('wc_get_product')->justReturn(wcProduct(sku: 'MUG-1', imageId: 44));
+    Functions\when('wp_get_attachment_image_url')->justReturn('http://shop.example/mug-large.jpg');
+
+    $post = new WP_Post();
+    $post->ID = 4;
+    $post->post_type = 'product';
+
+    $payload = (new WooCommerce())->enrichProduct([
+        'content' => '<p>A mug.</p>',
+        'meta' => ['post_type' => 'product'],
+    ], $post);
+
+    expect($payload['thumbnail'])->toBe('https://shop.example/mug-large.jpg');
+});
+
+it('does not overwrite an existing thumbnail', function () {
+    Functions\when('wc_get_product')->justReturn(wcProduct(sku: 'MUG-1', imageId: 44));
+    Functions\when('wp_get_attachment_image_url')->justReturn('https://shop.example/mug-large.jpg');
+
+    $post = new WP_Post();
+    $post->ID = 4;
+    $post->post_type = 'product';
+
+    $payload = (new WooCommerce())->enrichProduct([
+        'content' => '<p>A mug.</p>',
+        'meta' => ['post_type' => 'product'],
+        'thumbnail' => 'https://example.com/already.jpg',
+    ], $post);
+
+    expect($payload['thumbnail'])->toBe('https://example.com/already.jpg');
 });

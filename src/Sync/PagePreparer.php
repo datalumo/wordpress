@@ -66,6 +66,8 @@ class PagePreparer
             'meta' => array_filter($meta, fn ($value) => $value !== null && $value !== '' && $value !== []),
         ];
 
+        $payload['thumbnail'] = $this->featuredImageUrl($post);
+
         $payload = apply_filters('datalumo_page_payload', $payload, $post);
 
         if (! is_array($payload)) {
@@ -124,6 +126,27 @@ class PagePreparer
         if (is_readable($file)) {
             require_once $file;
         }
+    }
+
+    /**
+     * Featured image as an https URL, or null when the post has none
+     * (null is sent so a re-sync can clear a stored URL). `large` keeps
+     * search-card payloads smaller than the original. http is upgraded
+     * so HTTPS dashboards do not block the image.
+     */
+    private function featuredImageUrl(WP_Post $post): ?string
+    {
+        $url = get_the_post_thumbnail_url($post, 'large');
+
+        if (! is_string($url) || $url === '') {
+            return null;
+        }
+
+        if (str_starts_with(strtolower($url), 'http://')) {
+            $url = 'https://'.substr($url, 7);
+        }
+
+        return str_starts_with(strtolower($url), 'https://') ? $url : null;
     }
 
     /**

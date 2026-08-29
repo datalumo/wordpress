@@ -52,7 +52,9 @@ class WooCommerce
         $payload = $this->attachTaxonomies($payload, $post);
         $payload = $this->attachAttributes($payload, $product);
 
-        return $this->attachSku($payload, $product);
+        $payload = $this->attachSku($payload, $product);
+
+        return $this->attachThumbnail($payload, $product);
     }
 
     /**
@@ -180,6 +182,38 @@ class WooCommerce
         $payload['meta'] = $meta;
 
         return $this->appendSearchableLines($payload, ['sku: '.implode(', ', $skus)]);
+    }
+
+    /**
+     * Product image when the post has no featured image of its own
+     * (variations often inherit the parent's).
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function attachThumbnail(array $payload, object $product): array
+    {
+        if (! empty($payload['thumbnail']) || ! method_exists($product, 'get_image_id')) {
+            return $payload;
+        }
+
+        $imageId = (int) $product->get_image_id();
+
+        if ($imageId <= 0) {
+            return $payload;
+        }
+
+        $url = wp_get_attachment_image_url($imageId, 'large');
+
+        if (is_string($url) && $url !== '') {
+            if (str_starts_with(strtolower($url), 'http://')) {
+                $url = 'https://'.substr($url, 7);
+            }
+
+            $payload['thumbnail'] = $url;
+        }
+
+        return $payload;
     }
 
     /**
