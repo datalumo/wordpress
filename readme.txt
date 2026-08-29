@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,7 +35,7 @@ The plugin talks to the Datalumo instance you configure. The default host is `ht
 When a feature is enabled, the plugin may:
 
 * Load the widget script from `{your Datalumo URL}/widget/v1/datalumo.js` (chat, search box, AI summary, and click tracking).
-* Send published post content to the Datalumo API so it can be indexed (title, HTML, permalink, author display name, categories, tags, dates, and any custom field mappings you add). WooCommerce products also send short description, product categories and tags, visible attributes, and SKU.
+* Send published post content to the Datalumo API so it can be indexed (title, HTML, permalink, featured image URL, author display name, categories, tags, dates, and any custom field mappings you add). WooCommerce products also send short description, product categories and tags, visible attributes, SKU, and the product image when there is no featured image.
 * Send visitor search queries to Datalumo when enhanced search is on.
 * Send result-click events (URL, rank, search session) when enhanced search is on.
 * Send a signed visitor id (`wp-user-{id}` HMAC) when visitor identity is enabled on the Chatbot tab.
@@ -77,6 +77,9 @@ View cart and Open checkout (WooCommerce), and Open this page (a post or page by
 
 
 == Changelog ==
+
+= 0.2.0 =
+* Featured images sync with the page. WooCommerce products use the product image when the post has none. Removing the image and syncing again clears it in Datalumo.
 
 = 0.1.0 =
 * Connect with Datalumo from Settings. Sign in, pick a knowledge base and widgets, then finish a short checklist for sync, chat, and search. You can still paste an API token for manual setup.
