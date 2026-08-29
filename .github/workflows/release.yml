@@ -58,7 +58,8 @@ jobs:
             --exclude 'tests' \
             --exclude 'bin' \
             --exclude 'phpunit.xml' \
-            --exclude '.phpunit.cache'
+            --exclude '.phpunit.cache' \
+            --exclude 'composer.lock'
           (cd build && zip -rq datalumo.zip datalumo)
 
       - name: Create release and upload asset

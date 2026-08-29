@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.0.8
+Stable tag: 0.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,12 +78,11 @@ View cart and Open checkout (WooCommerce), and Open this page (a post or page by
 
 == Changelog ==
 
-= 0.0.8 =
-* Connect with Datalumo: grant access from your Datalumo account. The plugin stores the source, token, and widget keys, then offers a short checklist for sync, chat, and search.
-* Manual setup is token-only. The organisation is inferred from the token. Widget keys and secrets are rejected in the wrong field.
-* Chat page actions: add_to_cart (WooCommerce, including variable products with nested colour/size choices), view_cart, open_checkout, and open_page.
-* Product and other singular pages send page_id (and product_id on products) as chat context.
-* WooCommerce products sync short description, product categories and tags, visible attributes, and SKU (including variation SKUs) as searchable fields.
+= 0.1.0 =
+* Connect with Datalumo from Settings. Sign in, pick a knowledge base and widgets, then finish a short checklist for sync, chat, and search. You can still paste an API token for manual setup.
+* WooCommerce: the chatbot can add a product to the cart, open the cart, or open checkout after the visitor confirms in chat. Variable products can ask for options first.
+* The chatbot can open a WordPress post or page.
+* Synced products include short description, categories, tags, visible attributes, and SKU, including variations.
 
 = 0.0.7 =
 * Full sync: when the push completes, the plugin now tells Datalumo to start indexing right away instead of waiting for its next background sweep. Best-effort — older Datalumo versions without the endpoint are unaffected.
