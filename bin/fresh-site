@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# Spin up a clean WordPress + WooCommerce site on SQLite, with this plugin
+# linked in, dummy posts/products, and admin / password.
+#
+#   bin/fresh-site
+#   bin/fresh-site --force
+#   SITE_DIR=~/Sites/datalumo-fresh bin/fresh-site
+set -euo pipefail
+
+PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SITE_DIR="${SITE_DIR:-$HOME/Sites/datalumo-fresh}"
+SITE_SLUG="$(basename "$SITE_DIR")"
+SITE_URL="${SITE_URL:-http://${SITE_SLUG}.test}"
+FORCE=0
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --force) FORCE=1; shift ;;
+        --url) SITE_URL="$2"; shift 2 ;;
+        --dir) SITE_DIR="$2"; SITE_SLUG="$(basename "$SITE_DIR")"; shift 2 ;;
+        -h|--help)
+            echo "Usage: bin/fresh-site [--force] [--dir PATH] [--url URL]"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+    esac
+done
+
+WP=(wp --path="$SITE_DIR" --allow-root)
+export WP_CLI_PHP_ARGS="${WP_CLI_PHP_ARGS:--d memory_limit=512M}"
+
+need() {
+    command -v "$1" >/dev/null 2>&1 || {
+        echo "Missing $1." >&2
+        exit 1
+    }
+}
+
+need wp
+need php
+need curl
+need unzip
+
+if ! php -r 'exit(extension_loaded("pdo_sqlite") ? 0 : 1);'; then
+    echo "PHP is missing pdo_sqlite." >&2
+    exit 1
+fi
+
+case "$SITE_DIR" in
+    /|"$HOME"|"$HOME/"|/)
+        echo "Refusing to use $SITE_DIR as the site path." >&2
+        exit 1
+        ;;
+esac
+
+if [[ -e "$SITE_DIR" ]]; then
+    if [[ "$FORCE" -ne 1 ]]; then
+        echo "$SITE_DIR already exists. Re-run with --force to wipe it." >&2
+        exit 1
+    fi
+    echo "Wiping $SITE_DIR"
+    rm -rf "$SITE_DIR"
+fi
+
+echo "Installing WordPress in $SITE_DIR"
+mkdir -p "$SITE_DIR"
+wp core download --path="$SITE_DIR"
+
+wp config create \
+    --path="$SITE_DIR" \
+    --dbname=wordpress \
+    --dbuser=wordpress \
+    --dbpass=wordpress \
+    --dbhost=127.0.0.1 \
+    --skip-check \
+    --extra-php <<'PHP'
+define( 'DB_ENGINE', 'sqlite' );
+define( 'WP_ENVIRONMENT_TYPE', 'local' );
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_DISPLAY', false );
+define( 'WP_DEBUG_LOG', true );
+define( 'DATALUMO_SSL_VERIFY', false );
+define( 'DATALUMO_API_URL', 'https://dl.test' );
+PHP
+
+echo "Adding SQLite drop-in"
+SQLITE_ZIP="$(mktemp -t sqlite-wp).zip"
+curl -fsSL "https://downloads.wordpress.org/plugin/sqlite-database-integration.latest-stable.zip" -o "$SQLITE_ZIP"
+unzip -qo "$SQLITE_ZIP" -d "$SITE_DIR/wp-content/plugins"
+rm -f "$SQLITE_ZIP"
+cp "$SITE_DIR/wp-content/plugins/sqlite-database-integration/db.copy" "$SITE_DIR/wp-content/db.php"
+
+"${WP[@]}" core install \
+    --url="$SITE_URL" \
+    --title="Datalumo Fresh" \
+    --admin_user=admin \
+    --admin_password=password \
+    --admin_email=admin@example.com \
+    --skip-email
+
+"${WP[@]}" plugin activate sqlite-database-integration
+"${WP[@]}" theme install twentytwentyfive --activate
+
+echo "Linking Datalumo plugin"
+if [[ ! -d "$PLUGIN_DIR/vendor" ]]; then
+    composer install --working-dir="$PLUGIN_DIR" --no-interaction
+fi
+ln -sfn "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/datalumo"
+"${WP[@]}" plugin activate datalumo
+
+echo "Installing WooCommerce"
+"${WP[@]}" plugin install woocommerce --activate
+"${WP[@]}" eval 'if (class_exists("WC_Install")) { WC_Install::create_pages(); }'
+"${WP[@]}" option update woocommerce_currency EUR
+"${WP[@]}" option update woocommerce_default_country NL
+"${WP[@]}" option update woocommerce_coming_soon no || true
+"${WP[@]}" option update woocommerce_store_pages_only no || true
+"${WP[@]}" option update woocommerce_onboarding_profile '{"skipped":true,"completed":true}' --format=json || true
+"${WP[@]}" option update woocommerce_task_list_hidden yes || true
+"${WP[@]}" option update woocommerce_task_list_complete yes || true
+
+"${WP[@]}" rewrite structure '/%postname%/' --hard
+"${WP[@]}" rewrite flush --hard
+
+echo "Seeding posts and products"
+"${WP[@]}" eval-file "$PLUGIN_DIR/bin/fresh-site-seed.php"
+
+echo
+echo "Ready."
+echo "  Site     $SITE_URL"
+echo "  Admin    $SITE_URL/wp-admin/"
+echo "  User     admin"
+echo "  Password password"
+echo "  Settings $SITE_URL/wp-admin/options-general.php?page=datalumo"
+echo "  Datalumo https://dl.test  (DATALUMO_API_URL)"
+echo "  Database $SITE_DIR/wp-content/database/.ht.sqlite"

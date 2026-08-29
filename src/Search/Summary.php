@@ -3,6 +3,7 @@
 namespace Datalumo\Wp\Search;
 
 use Datalumo\Wp\Embed\Embed;
+use Datalumo\Wp\Support\Assets;
 use Datalumo\Wp\Support\Options;
 
 /**
@@ -50,14 +51,14 @@ class Summary
             'datalumo-summary',
             DATALUMO_URL . 'resources/css/summary.css',
             [],
-            DATALUMO_VERSION,
+            Assets::version(),
         );
 
         wp_enqueue_script(
             'datalumo-summary',
             DATALUMO_URL . 'resources/js/summary.js',
             [Embed::SCRIPT_HANDLE],
-            DATALUMO_VERSION,
+            Assets::version(),
             ['in_footer' => true],
         );
 

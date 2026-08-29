@@ -22,10 +22,6 @@ class PagePreparer
 
         $content = $this->cleanContent($post);
 
-        if ($content === '') {
-            return null;
-        }
-
         $meta = [
             'post_type' => $post->post_type,
             'categories' => $this->termSlugs($post->ID, 'category'),
@@ -70,7 +66,18 @@ class PagePreparer
             'meta' => array_filter($meta, fn ($value) => $value !== null && $value !== '' && $value !== []),
         ];
 
-        return apply_filters('datalumo_page_payload', $payload, $post);
+        $payload = apply_filters('datalumo_page_payload', $payload, $post);
+
+        if (! is_array($payload)) {
+            return null;
+        }
+
+        // WooCommerce may fill an empty body (short description, SKU, attributes).
+        if (trim(wp_strip_all_tags((string) ($payload['content'] ?? ''))) === '') {
+            return null;
+        }
+
+        return $payload;
     }
 
     /**
@@ -80,15 +87,43 @@ class PagePreparer
      */
     private function cleanContent(WP_Post $post): string
     {
+        $this->ensureWooCommerceNotices();
+
         $raw = (string) $post->post_content;
 
         $raw = apply_filters('datalumo_render_shortcodes', false)
             ? do_shortcode($raw)
             : strip_shortcodes($raw);
 
-        $html = wp_filter_content_tags(wptexturize(do_blocks(wpautop($raw))));
+        $raw = wpautop($raw);
+
+        try {
+            $html = wp_filter_content_tags(wptexturize(do_blocks($raw)));
+        } catch (\Throwable) {
+            // WooCommerce Blocks (cart, checkout) call frontend helpers that
+            // are not loaded under WP-Cron. Keep the rest of the batch going.
+            $html = wp_filter_content_tags(wptexturize($raw));
+        }
 
         return trim(wp_strip_all_tags($html) === '' ? '' : $html);
+    }
+
+    /**
+     * WooCommerce only loads notice helpers on the storefront. Action
+     * Scheduler still runs do_blocks(), and Hydration::cache_store_notices()
+     * fatals if wc_get_notices() is missing.
+     */
+    private function ensureWooCommerceNotices(): void
+    {
+        if (function_exists('wc_get_notices') || ! defined('WC_ABSPATH')) {
+            return;
+        }
+
+        $file = WC_ABSPATH.'includes/wc-notice-functions.php';
+
+        if (is_readable($file)) {
+            require_once $file;
+        }
     }
 
     /**

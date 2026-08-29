@@ -1,0 +1,49 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Drop a Silence-is-golden index.php in every plugin directory so
+ * directory listing cannot expose files.
+ */
+
+$root = dirname(__DIR__);
+$skip = ['.git', '.github', '.slimm', '.phpunit.cache'];
+$contents = "<?php\n// Silence is golden.\n";
+
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveCallbackFilterIterator(
+        new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
+        static function (SplFileInfo $current) use ($skip): bool {
+            if (! $current->isDir()) {
+                return true;
+            }
+
+            $name = $current->getFilename();
+
+            if (in_array($name, $skip, true)) {
+                return false;
+            }
+
+            return ! str_contains($current->getPathname(), DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'bin');
+        },
+    ),
+    RecursiveIteratorIterator::SELF_FIRST,
+);
+
+$dirs = [$root];
+
+foreach ($iterator as $file) {
+    if ($file->isDir()) {
+        $dirs[] = $file->getPathname();
+    }
+}
+
+foreach ($dirs as $dir) {
+    $index = $dir.DIRECTORY_SEPARATOR.'index.php';
+
+    if (is_file($index)) {
+        continue;
+    }
+
+    file_put_contents($index, $contents);
+}
