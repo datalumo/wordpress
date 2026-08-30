@@ -51,6 +51,7 @@ class Grant
 
         // Off-site on purpose. wp_safe_redirect would rewrite dl.test /
         // datalumo.app back to this site's admin.
+        // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Datalumo grant URL is off-site.
         wp_redirect($url);
         exit;
     }
@@ -60,8 +61,10 @@ class Grant
         self::authorise();
 
         $expected = (string) get_transient(self::TRANSIENT.'_'.get_current_user_id());
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- OAuth callback; CSRF is the hashed state.
         $state = sanitize_text_field(wp_unslash((string) ($_GET['state'] ?? '')));
         $code = sanitize_text_field(wp_unslash((string) ($_GET['code'] ?? '')));
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         delete_transient(self::TRANSIENT.'_'.get_current_user_id());
 

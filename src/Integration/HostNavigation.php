@@ -127,7 +127,7 @@ class HostNavigation
 
     public function isSameSiteUrl(string $url): bool
     {
-        $parts = parse_url($url);
+        $parts = wp_parse_url($url);
 
         if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])) {
             return false;
@@ -172,7 +172,7 @@ class HostNavigation
     private function homeHost(): string
     {
         $home = function_exists('home_url') ? home_url('/') : '';
-        $host = parse_url($home, PHP_URL_HOST);
+        $host = wp_parse_url($home, PHP_URL_HOST);
 
         return is_string($host) ? strtolower($host) : '';
     }
@@ -210,7 +210,11 @@ class HostNavigation
      */
     private function requestPayload(): array
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified in handle().
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON decoded below.
         $raw = isset($_POST['payload']) ? wp_unslash($_POST['payload']) : '';
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         if (! is_string($raw) || $raw === '') {
             return [];

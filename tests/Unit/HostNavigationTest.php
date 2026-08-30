@@ -15,6 +15,7 @@ if (! defined('DATALUMO_VERSION')) {
 function hostNav(): HostNavigation
 {
     Functions\when('home_url')->justReturn('https://shop.test/');
+    Functions\when('wp_parse_url')->alias(fn (string $url, int $component = -1) => parse_url($url, $component));
 
     return new HostNavigation();
 }

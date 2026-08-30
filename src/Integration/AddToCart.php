@@ -285,6 +285,7 @@ class AddToCart
         return [
             'ok' => true,
             'message' => $name !== ''
+                /* translators: %s: product name */
                 ? sprintf(__('%s added to your cart.', 'datalumo'), $name)
                 : __('Added to your cart.', 'datalumo'),
             'fragments' => $this->cartFragments(),
@@ -371,6 +372,7 @@ class AddToCart
         return [
             'ok' => false,
             'status' => 'choices',
+            /* translators: %s: product attribute name, such as colour or size */
             'message' => sprintf(__('Which %s?', 'datalumo'), self::attributeLabel($keys[0])),
             'layout' => 'options',
             'choices' => $choices,
@@ -519,6 +521,7 @@ class AddToCart
             return $options;
         }
 
+        /* translators: %s: product attribute name, such as colour or size */
         $nextMessage = sprintf(__('Which %s?', 'datalumo'), self::attributeLabel($rest[0]));
         $tree = [];
 
@@ -761,7 +764,9 @@ class AddToCart
     private function requestPayload(): array
     {
         // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified in handle().
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON decoded below.
         $raw = wp_unslash($_POST['payload'] ?? '');
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         if (is_string($raw) && $raw !== '') {
@@ -788,6 +793,7 @@ class AddToCart
         woocommerce_mini_cart();
         $miniCart = (string) ob_get_clean();
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce cart fragment API.
         $fragments = apply_filters('woocommerce_add_to_cart_fragments', [
             'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $miniCart . '</div>',
         ]);
