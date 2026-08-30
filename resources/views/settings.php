@@ -77,7 +77,7 @@ foreach ($datalumo_syncs as $datalumo_sync_row) {
     };
     $datalumo_docs_hint = match ($datalumo_tab) {
         'content-sync' => __('Custom fields, filters, and sync details.', 'datalumo'),
-        'chatbot' => __('Shortcodes, visitor identity, and chat page actions.', 'datalumo'),
+        'chatbot' => __('Shortcodes and chat page actions.', 'datalumo'),
         'search-box', 'enhanced-search' => __('Search box shortcode and enhanced search.', 'datalumo'),
         default => __('Connect, sync, and widgets.', 'datalumo'),
     };
@@ -353,8 +353,9 @@ foreach ($datalumo_syncs as $datalumo_sync_row) {
                     <td>
                         <label>
                             <input type="checkbox" name="chatbot_identity_enabled" value="1" <?php checked((bool) Options::get('chatbot.identity_enabled')); ?> />
-                            <?php esc_html_e('Let logged-in users continue their conversations across visits', 'datalumo'); ?>
+                            <?php esc_html_e('Pass a signed id for logged-in users to the chat widget', 'datalumo'); ?>
                         </label>
+                        <p class="description"><?php esc_html_e('Optional, for custom implementations. The plugin does not resume conversations on its own.', 'datalumo'); ?></p>
                     </td>
                 </tr>
                 <tr>
