@@ -2,7 +2,7 @@
 
 it('has a silence is golden index.php in every first-party folder', function () {
     $root = dirname(__DIR__, 2);
-    $skip = ['.git', '.github', '.slimm', '.phpunit.cache', 'vendor'];
+    $skip = ['.git', '.github', '.slimm', '.phpunit.cache', '.wordpress-org', 'vendor', 'build'];
     $iterator = new RecursiveIteratorIterator(
         new RecursiveCallbackFilterIterator(
             new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),

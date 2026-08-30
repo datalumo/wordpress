@@ -7,7 +7,7 @@
  */
 
 $root = dirname(__DIR__);
-$skip = ['.git', '.github', '.slimm', '.phpunit.cache'];
+$skip = ['.git', '.github', '.slimm', '.phpunit.cache', '.wordpress-org', 'build'];
 $contents = "<?php\n// Silence is golden.\n";
 
 $iterator = new RecursiveIteratorIterator(

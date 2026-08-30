@@ -4,7 +4,7 @@ Tags: search, ai, chatbot, rag
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.0
+Stable tag: 1.0.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,9 @@ View cart and Open checkout (WooCommerce), and Open this page (a post or page by
 
 
 == Changelog ==
+
+= 1.0.0 =
+* First WordPress.org release.
 
 = 0.2.0 =
 * Featured images sync with the page. WooCommerce products use the product image when the post has none. Removing the image and syncing again clears it in Datalumo.
