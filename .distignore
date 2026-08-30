@@ -2,6 +2,7 @@
 .github
 .gitignore
 .distignore
+.wordpress-org
 .slimm
 .phpunit.cache
 tests

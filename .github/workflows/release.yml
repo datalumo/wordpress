@@ -52,6 +52,7 @@ jobs:
             --exclude '.github' \
             --exclude '.gitignore' \
             --exclude '.distignore' \
+            --exclude '.wordpress-org' \
             --exclude '.slimm' \
             --exclude 'build' \
             --exclude '*.zip' \
