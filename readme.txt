@@ -20,11 +20,11 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 * **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
 * **Chat actions** — add to cart, view cart, checkout, and open a page. Add them in Datalumo under Reply → What it can do.
 
-This plugin is an interface to a [Datalumo](https://datalumo.app) instance. You need a Datalumo account (or a self-hosted instance). Connect with Datalumo from Settings, or use Manual setup to paste an API token. Nothing is sent until an administrator connects the site and turns a feature on.
+Connect with Datalumo from Settings, or use Manual setup to paste an API token.
 
 = External services =
 
-The plugin talks to the Datalumo instance you configure. The default host is `https://datalumo.app`; you can point it at your own instance instead.
+The plugin talks to the Datalumo service.
 
 * Service: [https://datalumo.app](https://datalumo.app)
 * Documentation: [https://datalumo.app/docs](https://datalumo.app/docs)
@@ -33,7 +33,7 @@ The plugin talks to the Datalumo instance you configure. The default host is `ht
 
 When a feature is enabled, the plugin may:
 
-* Load the widget script from `{your Datalumo URL}/widget/v1/datalumo.js` (chat, search box, AI summary, and click tracking).
+* Load the widget script from `https://datalumo.app/widget/v1/datalumo.js` (chat, search box, AI summary, and click tracking).
 * Send published content to the Datalumo API: title, HTML, permalink, featured image URL, author display name, categories, tags, dates, and any custom field mappings. WooCommerce products also send short description, product categories and tags, visible attributes, SKU, and the product image when there is no featured image.
 * On Connect with Datalumo, send this site's host and URL so the grant can return to this admin.
 * Send the current page id as chat context, plus product id and SKU on product pages.
@@ -58,15 +58,11 @@ Production dependencies are installed with `composer install --no-dev`.
 
 = Do I need a Datalumo account? =
 
-Yes. The plugin does not search or chat on its own. It connects WordPress to a Datalumo instance — the hosted service at datalumo.app or one you run yourself.
+Yes. The plugin does not search or chat on its own. It connects WordPress to Datalumo.
 
 = What data is sent to Datalumo? =
 
 Only after you connect and turn a feature on. The list is under External services above.
-
-= Can I use a self-hosted Datalumo instance? =
-
-Yes. On the Connection tab, open Using a self-hosted Datalumo? and set the URL before you connect. Manual setup has the same field.
 
 = Can the chatbot add products to a WooCommerce cart? =
 
@@ -75,7 +71,6 @@ Yes, if WooCommerce is active. In Datalumo, add the WordPress Add to cart action
 = What other chat actions does the plugin handle? =
 
 View cart and Open checkout (WooCommerce), and Open this page (a post or page by id, slug, or same-site URL). Add them from Reply → Plugin actions → WordPress.
-
 
 == Changelog ==
 
