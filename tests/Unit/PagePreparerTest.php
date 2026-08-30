@@ -22,6 +22,7 @@ beforeEach(function () {
     Functions\when('get_post_time')->justReturn('2004-01-01T00:00:00+00:00');
     Functions\when('get_post_modified_time')->justReturn('2004-01-02T00:00:00+00:00');
     Functions\when('get_permalink')->justReturn('https://example.com/post');
+    Functions\when('get_the_post_thumbnail_url')->justReturn(false);
 });
 
 it('decodes HTML entities in the post title', function () {
@@ -30,7 +31,35 @@ it('decodes HTML entities in the post title', function () {
     $payload = (new PagePreparer())->prepare(new WP_Post());
 
     expect($payload['name'])->toBe('Kleine’ Douglas redde het niet')
-        ->and($payload['content_mime'])->toBe('text/html');
+        ->and($payload['content_mime'])->toBe('text/html')
+        ->and($payload['thumbnail'])->toBeNull();
+});
+
+it('upgrades an http featured image to https', function () {
+    Functions\when('get_the_title')->justReturn('Tote');
+    Functions\when('get_the_post_thumbnail_url')->justReturn('http://datalumo-fresh.test/wp-content/uploads/tote.png');
+
+    $payload = (new PagePreparer())->prepare(new WP_Post());
+
+    expect($payload['thumbnail'])->toBe('https://datalumo-fresh.test/wp-content/uploads/tote.png');
+});
+
+it('includes the featured image as a thumbnail', function () {
+    Functions\when('get_the_title')->justReturn('Guide');
+    Functions\when('get_the_post_thumbnail_url')->justReturn('https://example.com/wp-content/uploads/guide-1024x768.jpg');
+
+    $payload = (new PagePreparer())->prepare(new WP_Post());
+
+    expect($payload['thumbnail'])->toBe('https://example.com/wp-content/uploads/guide-1024x768.jpg');
+});
+
+it('skips a non-http featured image', function () {
+    Functions\when('get_the_title')->justReturn('Guide');
+    Functions\when('get_the_post_thumbnail_url')->justReturn('javascript:alert(1)');
+
+    $payload = (new PagePreparer())->prepare(new WP_Post());
+
+    expect($payload['thumbnail'])->toBeNull();
 });
 
 it('falls back when block rendering fatals', function () {

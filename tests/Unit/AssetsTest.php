@@ -3,7 +3,7 @@
 use Datalumo\Wp\Support\Assets;
 
 if (! defined('DATALUMO_VERSION')) {
-    define('DATALUMO_VERSION', '0.0.8');
+    define('DATALUMO_VERSION', '0.2.0');
 }
 
 it('uses a timestamp when the site environment is local', function () {

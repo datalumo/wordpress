@@ -9,7 +9,7 @@ if (! defined('DATALUMO_URL')) {
 }
 
 if (! defined('DATALUMO_VERSION')) {
-    define('DATALUMO_VERSION', '0.0.8');
+    define('DATALUMO_VERSION', '0.2.0');
 }
 
 function hostNav(): HostNavigation
