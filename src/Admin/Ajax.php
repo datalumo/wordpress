@@ -31,14 +31,16 @@ class Ajax
      */
     public function connect(): void
     {
-        $this->authorise();
+        check_ajax_referer(self::NONCE);
 
-        // phpcs:disable WordPress.Security.NonceVerification -- verified in authorise().
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Not allowed.', 'datalumo')], 403);
+        }
+
         $token = sanitize_text_field(wp_unslash((string) ($_POST['token'] ?? '')));
         $apiUrl = array_key_exists('api_url', $_POST)
             ? (esc_url_raw(wp_unslash((string) $_POST['api_url'])) ?: 'https://datalumo.app')
             : null;
-        // phpcs:enable WordPress.Security.NonceVerification
 
         if ($token === '') {
             $token = (string) Options::get('api_token', '');
@@ -115,7 +117,12 @@ class Ajax
 
     private function syncId(): string
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in authorise().
+        check_ajax_referer(self::NONCE);
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Not allowed.', 'datalumo')], 403);
+        }
+
         return sanitize_text_field(wp_unslash((string) ($_POST['sync_id'] ?? '')));
     }
 
