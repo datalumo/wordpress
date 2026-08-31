@@ -1,7 +1,7 @@
 === Datalumo ===
 Contributors: jeffreyvr
 Tags: search, ai, chatbot, rag
-Requires at least: 6.0
+Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 8.1
 Stable tag: 1.0.0
@@ -76,6 +76,8 @@ View cart and Open checkout (WooCommerce), and Open this page (a post or page by
 
 = 1.0.0 =
 * First WordPress.org release.
+* Translations are supplied by translate.wordpress.org; locale files are not bundled.
+* Jetpack Autoloader 6 and Action Scheduler 4.1.
 
 = 0.2.0 =
 * Featured images sync with the page. WooCommerce products use the product image when the post has none. Removing the image and syncing again clears it in Datalumo.

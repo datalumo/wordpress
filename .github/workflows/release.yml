@@ -61,7 +61,11 @@ jobs:
             --exclude 'phpunit.xml' \
             --exclude '.phpunit.cache' \
             --exclude '.DS_Store' \
-            --exclude 'composer.lock'
+            --exclude 'composer.lock' \
+            --exclude 'languages/*.po' \
+            --exclude 'languages/*.mo' \
+            --exclude 'languages/*.l10n.php' \
+            --exclude '*.l10n.php'
           (cd build && zip -rq datalumo.zip datalumo)
 
       - name: Create release and upload asset
