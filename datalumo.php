@@ -8,7 +8,7 @@
  * Plugin URI:        https://github.com/datalumo/wordpress
  * Description:       Sync your WordPress content to Datalumo and add AI-powered search and chat to your site.
  * Version:           1.0.0
- * Requires at least: 6.0
+ * Requires at least: 6.8
  * Requires PHP:      8.1
  * Author:            Datalumo
  * Author URI:        https://datalumo.app

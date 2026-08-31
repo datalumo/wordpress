@@ -12,3 +12,7 @@ composer.lock
 build
 *.zip
 .DS_Store
+languages/*.po
+languages/*.mo
+languages/*.l10n.php
+*.l10n.php
