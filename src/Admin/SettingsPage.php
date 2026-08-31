@@ -117,6 +117,10 @@ class SettingsPage
 
     private function requestedTab(): string
     {
+        if (! current_user_can('manage_options')) {
+            return 'connection';
+        }
+
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- settings tab is a navigation query arg.
         $tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : '';
 

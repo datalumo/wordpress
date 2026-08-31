@@ -763,11 +763,11 @@ class AddToCart
      */
     private function requestPayload(): array
     {
-        // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified in handle().
+        check_ajax_referer(self::NONCE);
+
         // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON decoded below.
         $raw = wp_unslash($_POST['payload'] ?? '');
         // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         if (is_string($raw) && $raw !== '') {
             $decoded = json_decode($raw, true);

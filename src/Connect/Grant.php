@@ -61,7 +61,7 @@ class Grant
         self::authorise();
 
         $expected = (string) get_transient(self::TRANSIENT.'_'.get_current_user_id());
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- OAuth callback; CSRF is the hashed state.
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- OAuth IdP redirect cannot post a WP nonce; CSRF is the hashed state vs the per-user transient.
         $state = sanitize_text_field(wp_unslash((string) ($_GET['state'] ?? '')));
         $code = sanitize_text_field(wp_unslash((string) ($_GET['code'] ?? '')));
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
