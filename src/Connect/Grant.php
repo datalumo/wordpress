@@ -58,10 +58,12 @@ class Grant
 
     public static function callback(): void
     {
-        self::authorise();
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Not allowed.', 'datalumo'));
+        }
 
         $expected = (string) get_transient(self::TRANSIENT.'_'.get_current_user_id());
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- OAuth IdP redirect cannot post a WP nonce; CSRF is the hashed state vs the per-user transient.
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- OAuth IdP redirect cannot carry a WP nonce; CSRF is hash_equals against the per-user transient.
         $state = sanitize_text_field(wp_unslash((string) ($_GET['state'] ?? '')));
         $code = sanitize_text_field(wp_unslash((string) ($_GET['code'] ?? '')));
         // phpcs:enable WordPress.Security.NonceVerification.Recommended

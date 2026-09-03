@@ -161,8 +161,10 @@ class Interceptor
      */
     private function reorder(array $pool, WP_Query $query): array
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public search sort query arg.
-        $orderby = isset($_GET['orderby']) ? sanitize_key((string) wp_unslash($_GET['orderby'])) : '';
+        // Prefer the original request value. Woo's pre_get_posts rewrites
+        // query_vars['orderby'] to meta_value_num, which is not in our map.
+        $raw = $query->query['orderby'] ?? $query->get('orderby');
+        $orderby = is_string($raw) ? sanitize_key($raw) : '';
 
         if ($orderby === '' || $orderby === 'relevance' || $pool === []) {
             return $pool;

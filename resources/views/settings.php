@@ -4,7 +4,7 @@ use Datalumo\Wp\Admin\SettingsPage;
 use Datalumo\Wp\Connect\Grant;
 use Datalumo\Wp\Support\Options;
 
-if (! defined('ABSPATH')) {
+if (! defined('ABSPATH') || ! current_user_can('manage_options')) {
     exit;
 }
 

@@ -60,6 +60,10 @@ class SettingsPage
 
     public function render(): void
     {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Not allowed.', 'datalumo'));
+        }
+
         $datalumo_tab = $this->requestedTab();
 
         if ($datalumo_tab === 'content-sync') {
