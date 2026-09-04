@@ -11,9 +11,8 @@
     ],
     "require": {
         "php": ">=8.1",
-        "automattic/jetpack-autoloader": "^3.0",
-        "woocommerce/action-scheduler": "^3.0",
-        "yahnis-elsts/plugin-update-checker": "^5.7"
+        "automattic/jetpack-autoloader": "^6.0",
+        "woocommerce/action-scheduler": "^4.1"
     },
     "autoload": {
         "psr-4": {

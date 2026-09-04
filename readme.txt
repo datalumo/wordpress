@@ -1,10 +1,10 @@
 === Datalumo ===
-Contributors: datalumo, jeffreyvr
+Contributors: jeffreyvr
 Tags: search, ai, chatbot, rag
-Requires at least: 6.0
+Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.0
+Stable tag: 1.0.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,14 +18,13 @@ Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives y
 * **Chat widget** — a floating assistant that answers from your content, with sources.
 * **Search box** — drop-in search via the `[datalumo_search]` shortcode.
 * **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
-* **Visitor identity** — logged-in users can continue their chat conversations across visits, verified with a server-side signature.
-* **Chat page actions**: the official plugin listens for confirmed chat events (`add_to_cart`, `view_cart`, `open_checkout`, `open_page`). Add those actions in Datalumo under Reply → What it can do.
+* **Chat actions** — add to cart, view cart, checkout, and open a page. Add them in Datalumo under Reply → What it can do.
 
-This plugin is an interface to a [Datalumo](https://datalumo.app) instance. You need a Datalumo account (or a self-hosted instance). Connect with Datalumo from Settings, or use Manual setup to paste an API token. Nothing is sent until an administrator connects the site and turns a feature on.
+Connect with Datalumo from Settings, or use Manual setup to paste an API token.
 
 = External services =
 
-The plugin talks to the Datalumo instance you configure. The default host is `https://datalumo.app`; you can point it at your own instance instead.
+The plugin talks to the Datalumo service.
 
 * Service: [https://datalumo.app](https://datalumo.app)
 * Documentation: [https://datalumo.app/docs](https://datalumo.app/docs)
@@ -34,11 +33,13 @@ The plugin talks to the Datalumo instance you configure. The default host is `ht
 
 When a feature is enabled, the plugin may:
 
-* Load the widget script from `{your Datalumo URL}/widget/v1/datalumo.js` (chat, search box, AI summary, and click tracking).
-* Send published post content to the Datalumo API so it can be indexed (title, HTML, permalink, featured image URL, author display name, categories, tags, dates, and any custom field mappings you add). WooCommerce products also send short description, product categories and tags, visible attributes, SKU, and the product image when there is no featured image.
-* Send visitor search queries to Datalumo when enhanced search is on.
+* Load the widget script from `https://datalumo.app/widget/v1/datalumo.js` (chat, search box, AI summary, and click tracking).
+* Send published content to the Datalumo API: title, HTML, permalink, featured image URL, author display name, categories, tags, dates, and any custom field mappings. WooCommerce products also send short description, product categories and tags, visible attributes, SKU, and the product image when there is no featured image.
+* On Connect with Datalumo, send this site's host and URL so the grant can return to this admin.
+* Send the current page id as chat context, plus product id and SKU on product pages.
+* Send visitor search queries when enhanced search is on.
 * Send result-click events (URL, rank, search session) when enhanced search is on.
-* Send a signed visitor id (`wp-user-{id}` HMAC) when visitor identity is enabled on the Chatbot tab.
+* Send a signed visitor id (`wp-user-{id}` HMAC) if you enable identity on the Chatbot tab. Optional, for custom implementations. The plugin does not resume conversations.
 
 = Development =
 
@@ -57,26 +58,26 @@ Production dependencies are installed with `composer install --no-dev`.
 
 = Do I need a Datalumo account? =
 
-Yes. The plugin does not search or chat on its own. It connects WordPress to a Datalumo instance — the hosted service at datalumo.app or one you run yourself.
+Yes. The plugin does not search or chat on its own. It connects WordPress to Datalumo.
 
 = What data is sent to Datalumo? =
 
-Only after you connect and enable a feature. Content sync sends the published posts you choose. Enhanced search sends visitor queries and optional result-click analytics. The chat and search widgets load Datalumo's script and talk to that instance. Visitor identity is off unless you turn it on.
-
-= Can I use a self-hosted Datalumo instance? =
-
-Yes. On the Connection tab, open Using a self-hosted Datalumo? and set the URL before you connect. Manual setup has the same field.
+Only after you connect and turn a feature on. The list is under External services above.
 
 = Can the chatbot add products to a WooCommerce cart? =
 
-Yes, if WooCommerce is active. In Datalumo, add the WordPress Add to cart action (event add_to_cart, field product_id). The visitor confirms in chat. Variable products send colour, then that colour's sizes, as nested choice steps (up to 8 options per step); more than that opens the product page.
+Yes, if WooCommerce is active. In Datalumo, add the WordPress Add to cart action. The visitor confirms in chat. Variable products can ask for options first.
 
 = What other chat actions does the plugin handle? =
 
 View cart and Open checkout (WooCommerce), and Open this page (a post or page by id, slug, or same-site URL). Add them from Reply → Plugin actions → WordPress.
 
-
 == Changelog ==
+
+= 1.0.0 =
+* First WordPress.org release.
+* Translations are supplied by translate.wordpress.org; locale files are not bundled.
+* Jetpack Autoloader 6 and Action Scheduler 4.1.
 
 = 0.2.0 =
 * Featured images sync with the page. WooCommerce products use the product image when the post has none. Removing the image and syncing again clears it in Datalumo.
@@ -113,6 +114,5 @@ View cart and Open checkout (WooCommerce), and Open this page (a post or page by
 
 = 0.0.1 =
 * Initial public release.
-* Content sync, chat/search widgets, enhanced search, and visitor identity.
-* GitHub auto-updates via Plugin Update Checker (removed ahead of the WordPress.org release).
+* Content sync, chat/search widgets, and enhanced search.
 * Dutch and Chinese translations.

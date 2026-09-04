@@ -58,9 +58,7 @@ class Interceptor
                 (string) $query->get('s'),
                 min(self::MAX_RESULTS, (int) apply_filters('datalumo_search_max_results', self::MAX_RESULTS)),
             );
-        } catch (ApiException $e) {
-            error_log(sprintf('[Datalumo] search failed (%d): %s — falling back to native.', $e->status, $e->getMessage()));
-
+        } catch (ApiException) {
             return null;
         }
 
@@ -126,16 +124,17 @@ class Interceptor
             'post_status' => 'publish',
             'posts_per_page' => count($ids),
             'ignore_sticky_posts' => true,
-            'suppress_filters' => true,
         ];
 
         $metaQuery = $query->get('meta_query');
 
         if (is_array($metaQuery) && $metaQuery !== []) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- copied from the main search query.
             $args['meta_query'] = $metaQuery;
         }
 
         if (! empty($query->tax_query->queries)) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- copied from the main search query.
             $args['tax_query'] = $query->tax_query->queries;
         }
 
@@ -144,8 +143,8 @@ class Interceptor
         $posts = get_posts($args);
 
         // orderby => post__in isn't reliable: other plugins (Woo catalog
-        // ordering) hook pre_get_posts and reset the order, which
-        // suppress_filters doesn't prevent — so enforce the ranking in PHP.
+        // ordering) hook pre_get_posts and reset the order, so enforce
+        // the ranking in PHP.
         $rank = array_flip(array_values($ids));
 
         usort($posts, fn ($a, $b) => ($rank[$a->ID] ?? PHP_INT_MAX) <=> ($rank[$b->ID] ?? PHP_INT_MAX));
@@ -162,7 +161,10 @@ class Interceptor
      */
     private function reorder(array $pool, WP_Query $query): array
     {
-        $orderby = isset($_GET['orderby']) ? sanitize_key((string) wp_unslash($_GET['orderby'])) : '';
+        // Prefer the original request value. Woo's pre_get_posts rewrites
+        // query_vars['orderby'] to meta_value_num, which is not in our map.
+        $raw = $query->query['orderby'] ?? $query->get('orderby');
+        $orderby = is_string($raw) ? sanitize_key($raw) : '';
 
         if ($orderby === '' || $orderby === 'relevance' || $pool === []) {
             return $pool;

@@ -346,7 +346,7 @@ class WooCommerce
      */
     public function resolveArgs(array $args, WP_Query $query): array
     {
-        return $this->applyPriceFilter($this->excludeHidden($args));
+        return $this->applyPriceFilter($this->excludeHidden($args), $query);
     }
 
     /**
@@ -390,12 +390,10 @@ class WooCommerce
      * @param  array<string, mixed>  $args
      * @return array<string, mixed>
      */
-    private function applyPriceFilter(array $args): array
+    private function applyPriceFilter(array $args, WP_Query $query): array
     {
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- public WooCommerce price-filter query args.
-        $minRaw = isset($_GET['min_price']) ? sanitize_text_field(wp_unslash($_GET['min_price'])) : '';
-        $maxRaw = isset($_GET['max_price']) ? sanitize_text_field(wp_unslash($_GET['max_price'])) : '';
-        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+        $minRaw = sanitize_text_field((string) $query->get('min_price'));
+        $maxRaw = sanitize_text_field((string) $query->get('max_price'));
 
         $min = $minRaw !== '' && is_numeric($minRaw) ? (float) $minRaw : null;
         $max = $maxRaw !== '' && is_numeric($maxRaw) ? (float) $maxRaw : null;

@@ -18,6 +18,7 @@ class Ajax
         add_action('wp_ajax_datalumo_sync_start', [$this, 'syncStart']);
         add_action('wp_ajax_datalumo_sync_cancel', [$this, 'syncCancel']);
         add_action('wp_ajax_datalumo_sync_status', [$this, 'syncStatus']);
+        add_action('wp_ajax_datalumo_dismiss_setup_notice', [$this, 'dismissSetupNotice']);
     }
 
     /**
@@ -30,14 +31,16 @@ class Ajax
      */
     public function connect(): void
     {
-        $this->authorise();
+        check_ajax_referer(self::NONCE);
 
-        // phpcs:disable WordPress.Security.NonceVerification -- verified in authorise().
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Not allowed.', 'datalumo')], 403);
+        }
+
         $token = sanitize_text_field(wp_unslash((string) ($_POST['token'] ?? '')));
         $apiUrl = array_key_exists('api_url', $_POST)
             ? (esc_url_raw(wp_unslash((string) $_POST['api_url'])) ?: 'https://datalumo.app')
             : null;
-        // phpcs:enable WordPress.Security.NonceVerification
 
         if ($token === '') {
             $token = (string) Options::get('api_token', '');
@@ -103,9 +106,23 @@ class Ajax
         wp_send_json_success((new BulkSync())->status($this->syncId()));
     }
 
+    public function dismissSetupNotice(): void
+    {
+        $this->authorise();
+
+        update_user_meta(get_current_user_id(), 'datalumo_hide_setup_notice', '1');
+
+        wp_send_json_success();
+    }
+
     private function syncId(): string
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in authorise().
+        check_ajax_referer(self::NONCE);
+
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Not allowed.', 'datalumo')], 403);
+        }
+
         return sanitize_text_field(wp_unslash((string) ($_POST['sync_id'] ?? '')));
     }
 

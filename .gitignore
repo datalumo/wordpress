@@ -4,3 +4,7 @@ build/
 *.zip
 .slimm/
 .phpunit.cache/
+.DS_Store
+languages/*.po
+languages/*.mo
+languages/*.l10n.php

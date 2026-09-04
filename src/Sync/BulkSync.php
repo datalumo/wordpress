@@ -117,8 +117,7 @@ class BulkSync
             if ($this->isCurrentRun($syncId, $run)) {
                 try {
                     $this->client()->indexSource($sync['source_id']);
-                } catch (ApiException $e) {
-                    error_log(sprintf('[Datalumo] index kick for %s failed (%d): %s', $sync['source_id'], $e->status, $e->getMessage()));
+                } catch (ApiException) {
                 }
             }
 
@@ -142,8 +141,6 @@ class BulkSync
                 $this->client()->pushBatch($sync['source_id'], $pages);
             }
         } catch (ApiException $e) {
-            error_log(sprintf('[Datalumo] bulk batch at %d failed (%d): %s', $offset, $e->status, $e->getMessage()));
-
             $this->handleBatchError($syncId, $run, $offset, $e);
 
             return;

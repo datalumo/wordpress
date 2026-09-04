@@ -1,9 +1,8 @@
 name: Release
 
-# Build a distributable plugin zip and attach it to the GitHub release whenever
-# a version tag is pushed. The Datalumo plugin checks for updates against these
-# release assets (see src/Support/UpdateChecker.php), so the zip must contain the
-# Composer-built vendor/ directory — GitHub's auto-generated source zip does not.
+# On a v* tag: install production vendor/, deploy trunk + tags/x.y.z + assets
+# to WordPress.org SVN, and attach the same zip to the GitHub release.
+# GitHub's source archive does not include vendor/.
 on:
   push:
     tags:
@@ -45,25 +44,18 @@ jobs:
             exit 1
           fi
 
-      - name: Build plugin zip
-        run: |
-          mkdir -p build/datalumo
-          rsync -a ./ build/datalumo/ \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude '.gitignore' \
-            --exclude '.slimm' \
-            --exclude 'build' \
-            --exclude '*.zip' \
-            --exclude 'tests' \
-            --exclude 'bin' \
-            --exclude 'phpunit.xml' \
-            --exclude '.phpunit.cache' \
-            --exclude 'composer.lock'
-          (cd build && zip -rq datalumo.zip datalumo)
+      - name: Deploy to WordPress.org
+        id: deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          generate-zip: true
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: datalumo
 
-      - name: Create release and upload asset
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/datalumo.zip
+          files: ${{ steps.deploy.outputs.zip-path }}
           generate_release_notes: true
