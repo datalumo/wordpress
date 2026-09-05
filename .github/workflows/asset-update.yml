@@ -1,0 +1,30 @@
+name: Plugin readme and assets
+
+# Push readme.txt / .wordpress-org changes to WordPress.org without a new
+# version. Updates trunk and the current Stable tag (so the directory page
+# changes). IGNORE_OTHER_FILES: SVN trunk has vendor/ from the release job;
+# git does not, and that must not block a readme-only deploy.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - readme.txt
+      - .wordpress-org/**
+      - .github/workflows/asset-update.yml
+
+jobs:
+  assets:
+    name: Update WordPress.org readme and assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: WordPress.org plugin asset/readme update
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: datalumo
+          IGNORE_OTHER_FILES: true

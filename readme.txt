@@ -45,8 +45,6 @@ When a feature is enabled, the plugin may:
 
 Source code: [https://github.com/datalumo/wordpress](https://github.com/datalumo/wordpress)
 
-Production dependencies are installed with `composer install --no-dev`.
-
 == Installation ==
 
 1. Install and activate the plugin.
