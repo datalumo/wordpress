@@ -14,10 +14,10 @@ Sync your WordPress content to Datalumo and add AI-powered search and chat to yo
 
 Datalumo keeps a searchable, AI-ready copy of your WordPress content and gives your visitors better answers:
 
+* **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
 * **Content sync** — published posts and pages are pushed to your Datalumo knowledge base automatically; edits and deletions follow along.
 * **Chat widget** — a floating assistant that answers from your content, with sources.
 * **Search box** — drop-in search via the `[datalumo_search]` shortcode.
-* **Enhanced search** — serve WordPress' native search results from Datalumo's ranking, with an optional streamed AI summary above the results. Falls back to native search automatically.
 * **Chat actions** — add to cart, view cart, checkout, and open a page. Add them in Datalumo under Reply → What it can do.
 
 Connect with Datalumo from Settings, or use Manual setup to paste an API token.
