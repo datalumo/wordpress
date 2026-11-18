@@ -73,12 +73,18 @@ class Client
      * Widget search, authorised by this site's Origin.
      *
      * @param string $widgetKey compound "org-id/widget-id"
+     * @param bool|null $track Record this search in Insights. Null keeps the API default: a browser call is recorded.
      */
-    public function search(string $widgetKey, string $query, int $limit = 50, ?string $sort = null): array
+    public function search(string $widgetKey, string $query, int $limit = 50, ?string $sort = null, ?bool $track = null): array
     {
         [$org, $widget] = $this->parseWidgetKey($widgetKey);
 
         $payload = array_filter(['query' => $query, 'limit' => $limit, 'sort' => $sort]);
+
+        // array_filter drops false, so an explicit track flag is applied after.
+        if ($track !== null) {
+            $payload['track'] = $track;
+        }
 
         return $this->request(
             'POST',

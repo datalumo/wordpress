@@ -72,6 +72,9 @@ View cart and Open checkout (WooCommerce), and Open this page (a post or page by
 
 == Changelog ==
 
+= Unreleased =
+* Widget search accepts an optional track flag. Pass false to skip Insights for a lookup that is not a visitor search. Omit it and a browser search is still recorded.
+
 = 1.0.0 =
 * First WordPress.org release.
 * Translations are supplied by translate.wordpress.org; locale files are not bundled.
